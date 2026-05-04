@@ -184,6 +184,29 @@
   .news-ticker{position:absolute;top:0;left:0;right:0;background:rgba(200,0,0,0.95);color:#fff;font-family:'Bangers',cursive;font-size:clamp(13px,3.5vw,18px);letter-spacing:2px;padding:6px 0;z-index:150;display:flex;overflow:hidden;pointer-events:none;}
   .news-scroll{white-space:nowrap;animation:tickerScroll 6s linear;}
   @keyframes tickerScroll{from{transform:translateX(100vw)}to{transform:translateX(-100%)}}
+
+  /* RUMOUR TICKER */
+  .rumour-ticker{position:absolute;bottom:80px;left:0;right:0;background:rgba(255,140,0,0.97);color:#1a0a00;font-family:'Bangers',cursive;font-size:clamp(12px,3vw,16px);letter-spacing:1px;padding:5px 0;z-index:149;display:flex;overflow:hidden;pointer-events:none;}
+  .rumour-scroll{white-space:nowrap;animation:tickerScroll 9s linear;}
+
+  /* JAPPY OVERLAY */
+  #jappy-overlay{display:none;position:absolute;inset:0;background:rgba(0,0,0,0.82);z-index:215;align-items:center;justify-content:center;}
+  #jappy-overlay.active{display:flex;}
+  #jappy-box{background:linear-gradient(135deg,#fff8e1,#fffde7);border:5px solid #ff6f00;border-radius:24px;padding:20px 24px;text-align:center;max-width:420px;width:92%;animation:popIn 0.3s ease;box-shadow:0 0 40px rgba(255,111,0,0.35);}
+  #jappy-box h2{font-family:'Bangers',cursive;font-size:clamp(24px,7vw,36px);color:#e65100;letter-spacing:2px;margin-bottom:4px;}
+  .jappy-char-wrap{display:flex;justify-content:center;margin:8px 0;}
+  .jappy-q{font-size:clamp(13px,3.5vw,16px);color:#4e342e;font-weight:900;font-style:italic;margin:8px 0 4px;line-height:1.5;border-left:4px solid #ff6f00;padding-left:12px;text-align:left;}
+  .jappy-fund{font-family:'Bangers',cursive;font-size:clamp(20px,5.5vw,28px);color:#333;margin:6px 0;}
+  .jappy-fund span{color:#e65100;}
+  .jappy-wallet{font-size:clamp(12px,3vw,14px);color:#555;font-weight:700;margin-bottom:14px;}
+  .jappy-wallet em{color:#00aa55;font-style:normal;}
+  #jappy-donate-btn{background:linear-gradient(135deg,#ff6f00,#ff8f00);color:#fff;border:none;border-radius:12px;padding:11px 22px;font-family:'Bangers',cursive;font-size:clamp(18px,5vw,24px);letter-spacing:1px;cursor:pointer;margin-right:8px;touch-action:manipulation;box-shadow:0 3px 0 #bf360c;}
+  #jappy-donate-btn:active{transform:translateY(2px);box-shadow:none;}
+  #jappy-refuse-btn{background:#666;color:#fff;border:none;border-radius:12px;padding:11px 14px;font-family:'Bangers',cursive;font-size:clamp(16px,4vw,20px);cursor:pointer;touch-action:manipulation;}
+  #jappy-refuse-btn:active{transform:scale(1.05);}
+  .jappy-bub{border-color:#ff6f00!important;background:#fff8e1!important;color:#7a3a00!important;max-width:210px;font-size:clamp(10px,2.5vw,13px);}
+  .jappy-bub::after{border-top-color:#ff6f00!important;}
+  .jappy-char{position:absolute;z-index:17;}
 </style>
 </head>
 <body>
@@ -282,6 +305,19 @@
     </div>
   </div>
 
+  <!-- JAPPY - FRIED CHICKEN FUND -->
+  <div id="jappy-overlay">
+    <div id="jappy-box">
+      <h2>🍗 JAPPY'S HERE! 🍗</h2>
+      <div class="jappy-char-wrap" id="jappyCharWrap"></div>
+      <div class="jappy-q" id="jappyQuote"></div>
+      <div class="jappy-fund">DONATION: <span id="jappyAmt">0</span> $JOSH</div>
+      <div class="jappy-wallet">Your wallet: <em id="jappyWallet">0</em> $JOSH</div>
+      <button id="jappy-donate-btn" onclick="donateToJappy()">DONATE! 🍗❤️</button>
+      <button id="jappy-refuse-btn" onclick="refuseJappy()">NO THANKS!</button>
+    </div>
+  </div>
+
   <!-- TANKER ALERT -->
   <div id="tanker-overlay">
     <div id="tanker-box">
@@ -328,7 +364,7 @@
   <div id="start-screen">
     <h1>DR. JOSH</h1>
     <div class="sub">NYC's #1 Street Physical Therapist</div>
-    <div class="desc">Heal New Yorkers, eat pancakes &amp; hot dogs, stack $JOSH crypto — dodge the Italian landlord, avoid Navy seizures &amp; try your luck at Resorts World!</div>
+    <div class="desc">Heal New Yorkers, eat pancakes &amp; hot dogs, stack $JOSH crypto — dodge the Italian landlord, avoid Navy seizures, gamble at Resorts World &amp; beware Jappy's Fried Chicken Fund!</div>
     <div class="ctrl-row">
       <div class="ck">← → MOVE</div>
       <div class="ck">SPACE JUMP</div>
@@ -375,6 +411,8 @@ let cryptoPrice=0.042,cryptoHistory=[];
 let totalCryptoEarned=0,refusedCount=0,tankerIgnoreCount=0;
 let betAmount=10,isSpinning=false;
 let tankerCostAmt=0;
+let jappyActive=false,jappyOnScreen=false,jappyEl=null,jappySpeechEl=null;
+let jappyDonateAmt=0,jappyRefusals=0;
 
 for(let i=0;i<8;i++) cryptoHistory.push(+(0.038+Math.random()*0.008).toFixed(4));
 cryptoPrice=cryptoHistory[cryptoHistory.length-1];
@@ -415,6 +453,28 @@ const NPC_TYPES=[
   {color:'#e8d5b0',accent:'#c9b48a'},{color:'#d4896a',accent:'#b8623e'},
   {color:'#8b5e3c',accent:'#6b4226'},{color:'#f0c8a0',accent:'#d4a06a'},
   {color:'#c8a882',accent:'#a88860'},
+];
+const JAPPY_ASK=[
+  "Dr. Josh, my friend! You are looking very STRONG today! Please, just a small donation to my Fried Chicken Fund for the disadvantaged youth? They need the thighs, Josh. THEY NEED THE THIGHS.",
+  "Ah, Dr. Josh! The great healer! You know what heals the soul? Fried chicken. Please donate to my fund. The children are hungry, Josh. Think of the drumsticks.",
+  "Josh bhai! So good to see you! My Fried Chicken Fund is running very low. Just a few $JOSH coins and many children will have crispy, golden happiness tonight!",
+  "Dr. Josh! You heal bodies, I heal spirits — with fried chicken! Please donate. The disadvantaged youth are waiting. Extra crispy. The way God intended.",
+  "My dear Dr. Josh! I have been walking ALL DAY for this fund. The youth need fried chicken. You have the coins. I have the cause. Let us make magic together, yes?",
+];
+const JAPPY_RUMOURS=[
+  "🍗 JAPPY SAYS: Dr. Josh's mum shops at ALDI!! 😱 Pass it on!!",
+  "🍗 JAPPY GOSSIP: I heard Dr. Josh's dad still uses Internet Explorer!! 😤 Shameful!!",
+  "🍗 BREAKING JAPPY NEWS: Dr. Josh eats generic brand cereal!! His parents are MORTIFIED!!",
+  "🍗 JAPPY ALERT: Dr. Josh's mum once returned a used gift card!! The AUDACITY!!",
+  "🍗 JAPPY EXCLUSIVE: Dr. Josh's dad borrowed $20 in 2009 and NEVER paid it back!! You heard it here first!!",
+  "🍗 JAPPY REPORTS: Dr. Josh's parents drive a 2003 Kia with a broken AC!! They REFUSED to donate to the Fried Chicken Fund!!",
+  "🍗 JAPPY SAYS: Dr. Josh learned PT from YOUTUBE TUTORIALS!! His degree is from a CEREAL BOX!!",
+  "🍗 JAPPY INSIDER: Dr. Josh's crypto is DOWN 90%!! His parents are calling it a PONZI!! They might be right!!",
+];
+const JAPPY_THANK=[
+  "Waheguru! God bless you Dr. Josh! The children will feast TONIGHT! Extra crispy! 🍗🙏",
+  "JOSH BHAI! You are a TRUE hero! Better than a PT, you are a FRIED CHICKEN ANGEL! 🍗",
+  "The youth thank you! I thank you! The chickens... well they are less happy. But the children! OH THE CHILDREN! 🍗",
 ];
 const CHALLENGES=[
   {type:'pancakes',emoji:'🥞',title:'PANCAKE EMERGENCY!',desc:"Dr. Josh spotted a stack of pancakes. He is POWERLESS to resist.",count:6},
@@ -527,8 +587,9 @@ function startGame(){
   playerX=120; playerY=0; velY=0; isJumping=false;
   npcs=[]; npcId=0; landlordOnScreen=false; pendingRent=0; llEl=null; llSpeechEl=null;
   betAmount=10;
+  jappyActive=false; jappyOnScreen=false; jappyEl=null; jappySpeechEl=null; jappyRefusals=0;
   updateHUD(); refreshCryptoDisplay();
-  spawnNPCLoop(); scheduleChallenge(); scheduleLandlord(); scheduleTanker();
+  spawnNPCLoop(); scheduleChallenge(); scheduleLandlord(); scheduleTanker(); scheduleJappy();
   lastTime=performance.now();
   loop(lastTime);
   showJoshSay(JOSH_SAY[Math.floor(Math.random()*JOSH_SAY.length)]);
@@ -542,7 +603,7 @@ function loop(ts){
   requestAnimationFrame(loop);
 }
 
-function isBlocked(){return challengeActive||rentActive||casinoActive||tankerActive;}
+function isBlocked(){return challengeActive||rentActive||casinoActive||tankerActive||jappyActive;}
 
 function update(dt){
   if(isBlocked()) return;
@@ -1006,7 +1067,164 @@ function spawnTaxi(){
 }
 setInterval(()=>{if(gameRunning)spawnTaxi();},3500);
 
-// ─── GAME END ─────────────────────────────────────────────────────
+// ─── JAPPY ────────────────────────────────────────────────────────
+function scheduleJappy(){
+  const delay=18000+Math.random()*20000;
+  setTimeout(()=>{if(gameRunning&&!jappyOnScreen) spawnJappy();},delay);
+}
+
+function spawnJappy(){
+  if(!gameRunning||jappyOnScreen) return;
+  jappyOnScreen=true;
+  const gc=document.getElementById('gc');
+  const W=gc.clientWidth,h=gc.clientHeight;
+  const el=document.createElement('div');
+  el.className='jappy-char';
+  el.style.cssText=`right:-90px;bottom:${h*0.38}px;transition:right 2.5s ease;`;
+  el.innerHTML=drawJappy();
+  gc.appendChild(el); jappyEl=el;
+  setTimeout(()=>{
+    el.style.right=Math.max(30, W-playerX-250)+'px';
+    setTimeout(()=>{
+      showJappySpeech("Excuse me Dr. Josh! A moment of your time! 🍗");
+      setTimeout(()=>{if(jappyOnScreen&&!jappyActive) openJappyOverlay();},3000);
+    },2600);
+  },50);
+}
+
+function drawJappy(){
+  return`<svg viewBox="0 0 56 100" width="56" height="100" xmlns="http://www.w3.org/2000/svg">
+  <!-- legs -->
+  <rect x="18" y="68" width="10" height="28" rx="4" fill="#3e2723"/>
+  <rect x="30" y="68" width="10" height="28" rx="4" fill="#3e2723"/>
+  <ellipse cx="23" cy="95" rx="8" ry="3.5" fill="#111"/>
+  <ellipse cx="35" cy="95" rx="8" ry="3.5" fill="#111"/>
+  <!-- kurta body (saffron orange) -->
+  <rect x="11" y="36" width="34" height="34" rx="7" fill="#ff6f00"/>
+  <!-- kurta detail -->
+  <rect x="24" y="36" width="8" height="34" rx="2" fill="#e65100" opacity="0.4"/>
+  <rect x="16" y="40" width="12" height="8" rx="2" fill="#fff3e0" opacity="0.6"/>
+  <!-- arms -->
+  <rect x="3" y="38" width="9" height="20" rx="4" fill="#ff6f00"/>
+  <ellipse cx="7" cy="59" rx="5.5" ry="4.5" fill="#a0522d"/>
+  <rect x="44" y="38" width="9" height="20" rx="4" fill="#ff6f00"/>
+  <!-- right hand holding bucket -->
+  <rect x="42" y="54" width="18" height="16" rx="4" fill="#d84315"/>
+  <text x="51" y="64" font-size="9" text-anchor="middle" fill="#fff" font-family="Nunito" font-weight="900">🍗</text>
+  <!-- neck -->
+  <rect x="23" y="28" width="10" height="10" rx="3" fill="#a0522d"/>
+  <!-- head -->
+  <ellipse cx="28" cy="18" rx="15" ry="16" fill="#a0522d"/>
+  <!-- TURBAN - big proud turban in deep blue -->
+  <ellipse cx="28" cy="6" rx="17" ry="9" fill="#1565c0"/>
+  <ellipse cx="28" cy="4" rx="17" ry="7" fill="#1976d2"/>
+  <ellipse cx="28" cy="2" rx="15" ry="5" fill="#1e88e5"/>
+  <!-- turban folds -->
+  <path d="M12 6 Q28 -4 44 6" stroke="#0d47a1" stroke-width="1.5" fill="none"/>
+  <path d="M14 9 Q28 0 42 9" stroke="#0d47a1" stroke-width="1.2" fill="none"/>
+  <!-- turban jewel -->
+  <ellipse cx="28" cy="5" rx="3" ry="2.5" fill="#f5c518"/>
+  <ellipse cx="28" cy="5" rx="1.5" ry="1.2" fill="#fff"/>
+  <!-- face -->
+  <ellipse cx="22" cy="17" rx="3" ry="3" fill="#fff"/>
+  <ellipse cx="34" cy="17" rx="3" ry="3" fill="#fff"/>
+  <ellipse cx="23" cy="17" rx="1.5" ry="1.8" fill="#111"/>
+  <ellipse cx="35" cy="17" rx="1.5" ry="1.8" fill="#111"/>
+  <!-- warm smile -->
+  <path d="M21 25 Q28 31 35 25" stroke="#5d1a00" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <!-- moustache -->
+  <path d="M22 22 Q25 20 28 22 Q31 20 34 22" stroke="#3e1a00" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <!-- eyebrows friendly -->
+  <rect x="19" y="12" width="7" height="2" rx="1" fill="#3e1a00" transform="rotate(5,22,12)"/>
+  <rect x="30" y="12" width="7" height="2" rx="1" fill="#3e1a00" transform="rotate(-5,34,12)"/>
+</svg>`;
+}
+
+function showJappySpeech(msg){
+  if(jappySpeechEl){jappySpeechEl.remove();jappySpeechEl=null;}
+  const gc=document.getElementById('gc'),h=gc.clientHeight;
+  const el=document.createElement('div'); el.className='speech jappy-bub';
+  const rx=jappyEl?parseInt(jappyEl.style.right)||60:60;
+  const W=gc.clientWidth;
+  el.style.right=(rx+10)+'px';
+  el.style.bottom=(h*0.38+115)+'px';
+  el.style.zIndex=56;
+  el.style.left='auto';
+  el.textContent=msg; gc.appendChild(el); jappySpeechEl=el;
+}
+
+function openJappyOverlay(){
+  if(!gameRunning) return;
+  jappyActive=true;
+  if(jappySpeechEl){jappySpeechEl.remove();jappySpeechEl=null;}
+  jappyDonateAmt=Math.floor((30+Math.random()*70)*(1+jappyRefusals*0.3));
+  const q=JAPPY_ASK[Math.floor(Math.random()*JAPPY_ASK.length)];
+  document.getElementById('jappyQuote').textContent='"'+q+'"';
+  document.getElementById('jappyAmt').textContent=jappyDonateAmt;
+  document.getElementById('jappyWallet').textContent=joshCoins;
+  // render Jappy in the box
+  document.getElementById('jappyCharWrap').innerHTML=drawJappy();
+  document.getElementById('jappy-overlay').classList.add('active');
+}
+
+function donateToJappy(){
+  if(joshCoins>=jappyDonateAmt){
+    joshCoins-=jappyDonateAmt; refreshCryptoDisplay();
+    pop(playerX,'-'+jappyDonateAmt+' $JOSH','r');
+    const thanks=JAPPY_THANK[Math.floor(Math.random()*JAPPY_THANK.length)];
+    showJoshSay("Good cause! The kids get chicken tonight! 🍗");
+    score+=50; updateHUD();
+    closeJappy(true, thanks);
+  } else {
+    showJoshSay("I'm broke Jappy, I'm sorry! 😬");
+    closeJappy(false, null);
+  }
+}
+
+function refuseJappy(){
+  jappyRefusals++;
+  showJoshSay("Sorry Jappy, can't donate right now... 😬");
+  closeJappy(false, null);
+}
+
+function closeJappy(donated, thankMsg){
+  document.getElementById('jappy-overlay').classList.remove('active');
+  jappyActive=false;
+  if(jappyEl){
+    jappyEl.style.transition='right 2s ease';
+    jappyEl.style.right='-200px';
+    if(thankMsg) showJappySpeech(thankMsg);
+    setTimeout(()=>{
+      if(jappyEl){jappyEl.remove();jappyEl=null;}
+      if(jappySpeechEl){jappySpeechEl.remove();jappySpeechEl=null;}
+    },2200);
+  }
+  jappyOnScreen=false;
+  if(!donated) {
+    // Jappy starts rumours! Fire one immediately + schedule more
+    setTimeout(()=>showRumour(),1500);
+    if(jappyRefusals>=2) setTimeout(()=>showRumour(),9000);
+  }
+  scheduleJappy();
+}
+
+function showRumour(){
+  if(!gameRunning) return;
+  const gc=document.getElementById('gc');
+  document.querySelectorAll('.rumour-ticker').forEach(e=>e.remove());
+  const t=document.createElement('div'); t.className='rumour-ticker';
+  const s=document.createElement('div'); s.className='rumour-scroll';
+  const rumour=JAPPY_RUMOURS[Math.floor(Math.random()*JAPPY_RUMOURS.length)];
+  s.textContent=rumour+' 🍗 '+rumour;
+  t.appendChild(s); gc.appendChild(t);
+  // Score penalty — rumours hurt reputation!
+  score=Math.max(0,score-100);
+  updateHUD();
+  pop(playerX,'REPUTATION -100!','r');
+  setTimeout(()=>t.remove(),10000);
+}
+
+
 function gameEnd(){
   gameRunning=false;
   document.getElementById('goScore').textContent='Final Score: '+score;
@@ -1020,11 +1238,14 @@ function restartGame(){
   document.getElementById('rent-overlay').classList.remove('active');
   document.getElementById('tanker-overlay').classList.remove('active');
   document.getElementById('casino-overlay').classList.remove('active');
-  challengeActive=false; rentActive=false; landlordOnScreen=false; casinoActive=false; tankerActive=false;
+  document.getElementById('jappy-overlay').classList.remove('active');
+  challengeActive=false; rentActive=false; landlordOnScreen=false; casinoActive=false; tankerActive=false; jappyActive=false; jappyOnScreen=false;
   npcs.forEach(n=>{if(n.el)n.el.remove();if(n.speechEl)n.speechEl.remove();}); npcs=[];
   if(llEl){llEl.remove();llEl=null;}
   if(llSpeechEl){llSpeechEl.remove();llSpeechEl=null;}
-  document.querySelectorAll('.speech,.sp,.taxi,.news-ticker').forEach(e=>e.remove());
+  if(jappyEl){jappyEl.remove();jappyEl=null;}
+  if(jappySpeechEl){jappySpeechEl.remove();jappySpeechEl=null;}
+  document.querySelectorAll('.speech,.sp,.taxi,.news-ticker,.rumour-ticker').forEach(e=>e.remove());
   cryptoPrice=0.042; cryptoHistory=[];
   for(let i=0;i<8;i++) cryptoHistory.push(+(0.038+Math.random()*0.008).toFixed(4));
   startGame();
