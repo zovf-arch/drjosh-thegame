@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DR. JOSH – NYC's Finest PT</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@400;700;900&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#1a1a2e; font-family:'Nunito',sans-serif; overflow:hidden; user-select:none; }
+  #gc { position:relative; width:100vw; height:100vh; overflow:hidden; }
+ 
+  #sky { position:absolute; top:0; left:0; right:0; height:42%;
+    background:linear-gradient(180deg,#0f2a5c 0%,#1e4fa8 60%,#e8a838 100%); }
+  .building { position:absolute; bottom:0; background:#0d1b3e; border-top:2px solid #1e3a6e; }
+  .building::after { content:''; position:absolute; top:0; left:0; right:0; height:100%;
+    background:repeating-linear-gradient(to right,transparent,transparent 10px,rgba(255,220,80,0.15) 10px,rgba(255,220,80,0.15) 12px); }
+  .win-lit { position:absolute; width:6px; height:8px; background:#ffe066; border-radius:1px; }
+  #ground { position:absolute; bottom:0; left:0; right:0; height:58%; }
+  #sidewalk { position:absolute; bottom:0; left:0; right:0; height:100%; background:#b0a898; }
+  #road { position:absolute; bottom:0; left:0; right:0; height:38%; background:#2c2c2c; }
+  .rline { position:absolute; top:50%; height:6px; width:80px; background:#f5c518; border-radius:3px; animation:roadScroll 0.6s linear infinite; }
+  @keyframes roadScroll { from{transform:translateX(0)} to{transform:translateX(-120px)} }
+ 
+  #player { position:absolute; width:64px; height:100px; z-index:20; }
+  #player.walk .leg-l{animation:legL 0.3s infinite alternate}
+  #player.walk .leg-r{animation:legR 0.3s infinite alternate}
+  #player.walk .arm-l{animation:armL 0.3s infinite alternate}
+  #player.walk .arm-r{animation:armR 0.3s infinite alternate}
+  @keyframes legL{from{transform:rotate(-20deg)}to{transform:rotate(20deg)}}
+  @keyframes legR{from{transform:rotate(20deg)}to{transform:rotate(-20deg)}}
+  @keyframes armL{from{transform:rotate(-15deg)}to{transform:rotate(15deg)}}
+  @keyframes armR{from{transform:rotate(15deg)}to{transform:rotate(-15deg)}}
+ 
+  #hud { position:absolute; top:10px; left:10px; right:10px; display:flex; justify-content:space-between; align-items:flex-start; z-index:100; pointer-events:none; gap:6px; }
+  .hud-box { background:rgba(10,15,40,0.88); border:2px solid #f5c518; border-radius:12px; padding:5px 12px; font-family:'Bangers',cursive; letter-spacing:1px; color:#fff; font-size:16px; pointer-events:none; white-space:nowrap; }
+  .hud-box span { color:#f5c518; }
+  .hud-title { font-size:19px; text-align:center; }
+ 
+  #crypto-hud { position:absolute; top:70px; right:10px; z-index:101; background:rgba(5,20,15,0.94); border:2px solid #00cc66; border-radius:14px; padding:8px 13px; font-family:'Bangers',cursive; color:#fff; min-width:155px; pointer-events:none; }
+  .c-label { font-size:10px; color:#00cc66; letter-spacing:2px; margin-bottom:1px; font-family:'Nunito'; font-weight:900; text-transform:uppercase; }
+  .c-coins { font-size:20px; letter-spacing:1px; }
+  .c-coins em { color:#f5c518; font-style:normal; }
+  .c-price-row { display:flex; justify-content:space-between; align-items:center; margin-top:2px; }
+  .c-price { font-size:11px; color:#aaa; font-family:'Nunito'; font-weight:700; }
+  .c-trend { font-size:11px; font-family:'Nunito'; font-weight:900; }
+  .c-trend.up { color:#00ff88; }
+  .c-trend.dn { color:#ff4455; }
+  #sparkline { display:flex; gap:2px; align-items:flex-end; height:22px; margin-top:5px; }
+  .sp-bar { flex:1; border-radius:1px 1px 0 0; min-width:7px; }
+  .c-port { margin-top:3px; font-size:10px; color:#888; font-family:'Nunito'; font-weight:700; }
+  .c-port em { color:#00cc66; font-style:normal; }
+ 
+  .speech { position:absolute; background:#fff; border:3px solid #222; border-radius:14px; padding:7px 11px; font-size:12px; font-weight:700; color:#111; max-width:175px; text-align:center; z-index:50; pointer-events:none; animation:popIn 0.2s ease; line-height:1.3; }
+  .speech::after { content:''; position:absolute; bottom:-13px; left:50%; transform:translateX(-50%); border:6px solid transparent; border-top-color:#222; }
+  .josh-bub { border-color:#f5c518!important; background:#fffbe6!important; color:#7a5000!important; max-width:200px; }
+  .josh-bub::after { border-top-color:#f5c518!important; }
+  .ll-bub { border-color:#c0392b!important; background:#fff2f0!important; color:#7a0000!important; max-width:230px; font-size:13px; }
+  .ll-bub::after { border-top-color:#c0392b!important; }
+  @keyframes popIn { from{transform:scale(0.5);opacity:0} to{transform:scale(1);opacity:1} }
+ 
+  .npc { position:absolute; z-index:15; display:flex; flex-direction:column; align-items:center; cursor:pointer; }
+  .ll-char { position:absolute; z-index:16; }
+ 
+  #challenge-overlay { display:none; position:absolute; inset:0; background:rgba(0,0,0,0.78); z-index:200; align-items:center; justify-content:center; flex-direction:column; }
+  #challenge-overlay.active { display:flex; }
+  #ch-box { background:#fff; border:5px solid #f5c518; border-radius:24px; padding:26px 34px; text-align:center; max-width:420px; width:90%; animation:popIn 0.3s ease; }
+  #ch-box h2 { font-family:'Bangers',cursive; font-size:38px; color:#c0392b; letter-spacing:2px; margin-bottom:6px; }
+  #ch-box p { font-size:15px; color:#444; margin-bottom:16px; font-weight:700; }
+  #ch-progress { display:flex; gap:8px; justify-content:center; margin-bottom:16px; flex-wrap:wrap; }
+  .pd { width:44px; height:44px; border-radius:50%; background:#eee; border:3px solid #ccc; display:flex; align-items:center; justify-content:center; font-size:22px; cursor:pointer; transition:all 0.15s; }
+  .pd:hover{transform:scale(1.15);}
+  .pd.eaten { background:#f5c518; border-color:#c9a000; filter:grayscale(0.6) brightness(0.75); }
+  #ch-btn { background:#e74c3c; color:#fff; border:none; border-radius:12px; padding:11px 28px; font-family:'Bangers',cursive; font-size:25px; letter-spacing:1px; cursor:pointer; transition:transform 0.1s; }
+  #ch-btn:hover{transform:scale(1.06);background:#c0392b;}
+ 
+  #rent-overlay { display:none; position:absolute; inset:0; background:rgba(0,0,0,0.82); z-index:210; align-items:center; justify-content:center; }
+  #rent-overlay.active { display:flex; }
+  #rent-box { background:linear-gradient(135deg,#fff9f0,#fff); border:5px solid #c0392b; border-radius:24px; padding:26px 34px; text-align:center; max-width:450px; width:92%; animation:popIn 0.35s ease; }
+  #rent-box h2 { font-family:'Bangers',cursive; font-size:34px; color:#c0392b; letter-spacing:2px; margin-bottom:6px; }
+  .ll-q { font-size:16px; color:#7a0000; font-weight:900; font-style:italic; margin:10px 0; line-height:1.5; border-left:4px solid #c0392b; padding-left:12px; text-align:left; }
+  .rent-amt { font-family:'Bangers',cursive; font-size:30px; color:#333; margin:8px 0 4px; }
+  .rent-amt span { color:#e74c3c; }
+  .wallet-line { font-size:14px; color:#555; font-weight:700; margin-bottom:14px; }
+  .wallet-line em { color:#00aa55; font-style:normal; font-size:16px; }
+  #pay-btn { background:#c0392b; color:#fff; border:none; border-radius:12px; padding:11px 28px; font-family:'Bangers',cursive; font-size:24px; letter-spacing:1px; cursor:pointer; margin-right:8px; }
+  #pay-btn:hover{transform:scale(1.05);}
+  #nope-btn { background:#555; color:#fff; border:none; border-radius:12px; padding:11px 18px; font-family:'Bangers',cursive; font-size:20px; cursor:pointer; }
+  #nope-btn:hover{transform:scale(1.05);}
+ 
+  #start-screen { position:absolute; inset:0; background:linear-gradient(160deg,#0f1b4c 0%,#1a3a8a 50%,#0a0a20 100%); z-index:300; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:13px; }
+  #start-screen h1 { font-family:'Bangers',cursive; font-size:clamp(52px,10vw,96px); color:#f5c518; letter-spacing:4px; text-shadow:4px 4px 0 #c9a000,8px 8px 0 rgba(0,0,0,0.4); line-height:1; text-align:center; }
+  .sub { font-size:clamp(12px,2.5vw,18px); color:#90d5ff; font-weight:700; letter-spacing:2px; text-transform:uppercase; }
+  .desc { font-size:clamp(12px,1.8vw,15px); color:#ccc; max-width:500px; text-align:center; line-height:1.6; padding:0 20px; }
+  #start-btn { background:#f5c518; color:#1a1a2e; border:none; border-radius:16px; padding:13px 42px; font-family:'Bangers',cursive; font-size:28px; letter-spacing:2px; cursor:pointer; box-shadow:0 6px 0 #c9a000; transition:transform 0.15s,box-shadow 0.15s; }
+  #start-btn:hover{transform:translateY(-2px);box-shadow:0 8px 0 #c9a000;}
+  .ctrl-row { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+  .ck { background:rgba(255,255,255,0.1); border-radius:10px; padding:9px 14px; color:#f5c518; font-weight:900; font-size:12px; text-align:center; }
+ 
+  .sp { position:absolute; font-family:'Bangers',cursive; font-size:24px; color:#f5c518; text-shadow:2px 2px 0 #000; pointer-events:none; z-index:80; animation:fly 1s ease forwards; }
+  .sp.g{color:#00ff88!important;}
+  .sp.r{color:#ff4455!important;}
+  @keyframes fly{from{transform:translateY(0);opacity:1}to{transform:translateY(-65px);opacity:0}}
+ 
+  #go-screen { display:none; position:absolute; inset:0; background:rgba(10,10,30,0.92); z-index:300; align-items:center; justify-content:center; flex-direction:column; gap:12px; }
+  #go-screen.active{display:flex;}
+  #go-screen h2 { font-family:'Bangers',cursive; font-size:68px; color:#e74c3c; letter-spacing:3px; text-shadow:4px 4px 0 #7a0000; }
+  #go-screen p { color:#ddd; font-size:17px; font-weight:700; }
+  #go-screen .sub2 { color:#ff9900; font-size:14px; font-family:'Nunito'; font-weight:900; }
+  #rbtn { background:#f5c518; color:#1a1a2e; border:none; border-radius:12px; padding:12px 36px; font-family:'Bangers',cursive; font-size:25px; letter-spacing:2px; cursor:pointer; }
+  #rbtn:hover{transform:scale(1.05);}
+ 
+  .taxi { position:absolute; z-index:12; animation:taxiGo linear; }
+  @keyframes taxiGo { from{left:-120px} to{left:110%} }
+</style>
+</head>
+<body>
+<div id="gc">
+  <div id="sky"><div id="bldgs"></div></div>
+  <div id="ground">
+    <div id="sidewalk"></div>
+    <div id="road">
+      <div class="rline" style="left:0;animation-delay:0s"></div>
+      <div class="rline" style="left:120px;animation-delay:.3s"></div>
+      <div class="rline" style="left:240px;animation-delay:.6s"></div>
+      <div class="rline" style="left:360px;animation-delay:.9s"></div>
+      <div class="rline" style="left:480px;animation-delay:1.2s"></div>
+      <div class="rline" style="left:600px;animation-delay:1.5s"></div>
+      <div class="rline" style="left:720px;animation-delay:1.8s"></div>
+    </div>
+  </div>
+ 
+  <!-- PLAYER -->
+  <div id="player" class="walk">
+    <svg viewBox="0 0 64 100" width="64" height="100" xmlns="http://www.w3.org/2000/svg">
+      <rect class="leg-l" x="20" y="72" width="11" height="26" rx="5" fill="#2c1a0e" style="transform-origin:25px 72px"/>
+      <rect class="leg-r" x="33" y="72" width="11" height="26" rx="5" fill="#2c1a0e" style="transform-origin:39px 72px"/>
+      <ellipse cx="25" cy="97" rx="9" ry="4" fill="#111"/>
+      <ellipse cx="39" cy="97" rx="9" ry="4" fill="#111"/>
+      <rect x="10" y="38" width="44" height="36" rx="8" fill="#1a5c2e"/>
+      <rect x="26" y="38" width="12" height="36" rx="2" fill="#166026" opacity="0.5"/>
+      <rect class="arm-l" x="2" y="40" width="10" height="22" rx="5" fill="#6b3a1f" style="transform-origin:7px 40px"/>
+      <rect class="arm-r" x="52" y="40" width="10" height="22" rx="5" fill="#6b3a1f" style="transform-origin:57px 40px"/>
+      <ellipse cx="7" cy="63" rx="6" ry="5" fill="#6b3a1f"/>
+      <ellipse cx="57" cy="63" rx="6" ry="5" fill="#6b3a1f"/>
+      <rect x="14" y="44" width="14" height="10" rx="2" fill="#fff"/>
+      <text x="21" y="52" font-size="5" font-family="Nunito,sans-serif" font-weight="900" fill="#1a5c2e" text-anchor="middle">PT</text>
+      <rect x="27" y="30" width="10" height="10" rx="3" fill="#6b3a1f"/>
+      <ellipse cx="32" cy="24" rx="16" ry="17" fill="#7a4422"/>
+      <ellipse cx="32" cy="9" rx="15" ry="7" fill="#1a0a00"/>
+      <ellipse cx="32" cy="34" rx="10" ry="5" fill="#1a0a00" opacity="0.7"/>
+      <ellipse cx="26" cy="23" rx="3" ry="3.5" fill="#fff"/>
+      <ellipse cx="38" cy="23" rx="3" ry="3.5" fill="#fff"/>
+      <ellipse cx="27" cy="23" rx="1.5" ry="2" fill="#111"/>
+      <ellipse cx="39" cy="23" rx="1.5" ry="2" fill="#111"/>
+      <rect x="22" y="18" width="8" height="2.5" rx="1" fill="#1a0a00" transform="rotate(-6,26,18)"/>
+      <rect x="34" y="18" width="8" height="2.5" rx="1" fill="#1a0a00" transform="rotate(6,38,18)"/>
+      <path d="M25 30 Q32 36 39 30" stroke="#1a0a00" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <rect x="28" y="30" width="8" height="4" rx="1" fill="#fff"/>
+      <rect x="17" y="13" width="30" height="5" rx="2" fill="#f5c518"/>
+      <text x="32" y="17" font-size="4" font-family="Nunito" font-weight="900" fill="#1a1a00" text-anchor="middle">DR</text>
+    </svg>
+  </div>
+ 
+  <!-- HUD -->
+  <div id="hud">
+    <div class="hud-box">SCORE: <span id="sd">0</span></div>
+    <div class="hud-box hud-title">DR. JOSH<br><span style="font-size:11px;color:#90d5ff;font-family:Nunito;font-weight:700;">NYC Physical Therapist</span></div>
+    <div class="hud-box">HEALED: <span id="hd">0</span></div>
+  </div>
+ 
+  <!-- CRYPTO TRACKER -->
+  <div id="crypto-hud">
+    <div class="c-label">💎 $JOSH Wallet</div>
+    <div class="c-coins">🪙 <em id="cCoins">500</em> $JOSH</div>
+    <div class="c-price-row">
+      <div class="c-price">$<em id="cPrice">0.0420</em> / coin</div>
+      <div class="c-trend up" id="cTrend">▲ +0.00%</div>
+    </div>
+    <div id="sparkline"></div>
+    <div class="c-port">Portfolio: $<em id="cPort">21.00</em> USD</div>
+  </div>
+ 
+  <!-- CHALLENGE -->
+  <div id="challenge-overlay">
+    <div id="ch-box">
+      <h2 id="chTitle">CHALLENGE!</h2>
+      <p id="chDesc">Eat them all!</p>
+      <div id="ch-progress"></div>
+      <button id="ch-btn" onclick="eatOne()">EAT IT!</button>
+    </div>
+  </div>
+ 
+  <!-- RENT -->
+  <div id="rent-overlay">
+    <div id="rent-box">
+      <h2>🇮🇹 RENT TIME-A! 🇮🇹</h2>
+      <div class="ll-q" id="llQuote"></div>
+      <div class="rent-amt">RENT DUE: <span id="rentAmt">0</span> $JOSH</div>
+      <div class="wallet-line">Your wallet: <em id="walletLine">0</em> $JOSH</div>
+      <button id="pay-btn" onclick="payRent()">PAY THE RENT-A! 💸</button>
+      <button id="nope-btn" onclick="refuseRent()">LATER!</button>
+    </div>
+  </div>
+ 
+  <!-- START -->
+  <div id="start-screen">
+    <h1>DR. JOSH</h1>
+    <div class="sub">NYC's #1 Street Physical Therapist</div>
+    <div class="desc">Heal injured New Yorkers, eat pancakes &amp; hot dogs, stack $JOSH crypto — but watch out for your Italian landlord!</div>
+    <div class="ctrl-row">
+      <div class="ck">← → MOVE</div>
+      <div class="ck">SPACE JUMP</div>
+      <div class="ck">E  HEAL</div>
+    </div>
+    <button id="start-btn" onclick="startGame()">LET'S GO, DOC!</button>
+    <div style="font-size:11px;color:#777;font-weight:700;letter-spacing:1px;">Buy my Crypto coin! 🚀</div>
+  </div>
+ 
+  <!-- GAME OVER -->
+  <div id="go-screen">
+    <h2 id="goTitle">EVICTED!</h2>
+    <p id="goScore">Final Score: 0</p>
+    <p id="goHealed" style="color:#90d5ff;">People Healed: 0</p>
+    <p id="goCrypto" style="color:#00ff88;">$JOSH Earned: 0</p>
+    <div class="sub2" id="goReason"></div>
+    <button id="rbtn" onclick="restartGame()">PLAY AGAIN!</button>
+  </div>
+</div>
+ 
+<script>
+// ─── STATE ────────────────────────────────────────────────────────
+let score=0,healed=0,joshCoins=500,gameRunning=false;
+let playerX=120,playerY=0,velY=0,isJumping=false;
+let keys={},npcs=[],npcId=0;
+let challengeActive=false,rentActive=false;
+let chProgress=0,chTotal=0,chEmoji='';
+let joshTO=null,lastTime=0;
+let pendingRent=0,llEl=null,llSpeechEl=null,landlordOnScreen=false;
+let cryptoPrice=0.042,cryptoHistory=[];
+let totalCryptoEarned=0,refusedCount=0;
+ 
+for(let i=0;i<8;i++) cryptoHistory.push(+(0.038+Math.random()*0.008).toFixed(4));
+cryptoPrice=cryptoHistory[cryptoHistory.length-1];
+ 
+const JOSH_SAY=[
+  "Buy my Crypto coin! 🚀","HODL tight, buddy!","To the moon! 🌙",
+  "Crypto cures everything!","PT and DeFi, baby!","My coin just 10x'd!",
+  "Buy $JOSH token NOW!","Guyanese strength, NYC hustle!",
+  "Stack sats and stretch!","DeFi and deep tissue!",
+  "Physical therapy AND financial therapy!","$JOSH is the cure!"
+];
+const NPC_SAY=[
+  "Please help me Dr. Josh!","My back is KILLING me!","Dr. Josh save me! 🙏",
+  "Only Dr. Josh can fix this!","Please, Dr. Josh, please!",
+  "I can't walk! Help!","Dr. Josh! You're my hero!",
+  "My knee, Dr. Josh!","Help me Dr. Josh!!!","Is that Dr. Josh?! YES!"
+];
+const LL_SAY=[
+  "Ayy Docta Josha! You-a owe-a the rent-a! Paya up-a!",
+  "Docta Josha! I no-a joking-a! Paya the rent-a now-a!",
+  "Eh Josha! The rent-a, she is-a due-a today-a!",
+  "Mamma mia Docta Josha! Gimme-a the rent-a coins-a!",
+  "Josha! No more-a crypto excusa! Paya the rent-a!",
+  "Ayy! I find-a you everywhere-a Docta Josha! Now paya!",
+  "Docta Josha, you-a always-a buy-a the crypto-a but never-a paya rent-a!",
+  "I-a bring-a my cousin Vinny-a if you no paya rent-a!",
+];
+const NPC_TYPES=[
+  {color:'#e8d5b0',accent:'#c9b48a'},{color:'#d4896a',accent:'#b8623e'},
+  {color:'#8b5e3c',accent:'#6b4226'},{color:'#f0c8a0',accent:'#d4a06a'},
+  {color:'#c8a882',accent:'#a88860'},
+];
+// Only pancakes and hotdogs!
+const CHALLENGES=[
+  {type:'pancakes',emoji:'🥞',title:'PANCAKE EMERGENCY!',desc:"Dr. Josh spotted a stack of pancakes. He is POWERLESS to resist.",count:6},
+  {type:'hotdog',emoji:'🌭',title:"NATHAN'S FAMOUS!",desc:"A hot dog cart appeared. Dr. Josh WILL eat every single one.",count:7},
+  {type:'pancakes',emoji:'🥞',title:'IHOP INCIDENT!',desc:"Someone left pancakes unattended on 8th Ave. Big mistake.",count:5},
+  {type:'hotdog',emoji:'🌭',title:'HOT DOG SHOWDOWN!',desc:"Coney Island style! The doctor is IN... the hot dog.",count:6},
+  {type:'pancakes',emoji:'🥞',title:'BREAKFAST CRISIS!',desc:"8 stacks of pancakes. Dr. Josh has no choice. Zero self-control.",count:8},
+  {type:'hotdog',emoji:'🌭',title:'STREET CART SABOTAGE!',desc:"The hot dogs called to Dr. Josh. He answered.",count:5},
+];
+ 
+// ─── INIT ─────────────────────────────────────────────────────────
+function init(){
+  buildBuildings();
+  window.addEventListener('keydown',e=>{
+    keys[e.code]=true;
+    if(e.code==='Space') e.preventDefault();
+    if(e.code==='KeyE'&&gameRunning&&!challengeActive&&!rentActive) tryHeal();
+  });
+  window.addEventListener('keyup',e=>{keys[e.code]=false;});
+  addMobileControls();
+  updateSparkline();
+}
+ 
+function buildBuildings(){
+  const bg=document.getElementById('bldgs');
+  [{l:'2%',w:60,h:80},{l:'8%',w:90,h:130},{l:'16%',w:50,h:60},
+   {l:'22%',w:80,h:110},{l:'32%',w:70,h:95},{l:'40%',w:100,h:150},
+   {l:'52%',w:55,h:70},{l:'60%',w:85,h:120},{l:'70%',w:65,h:90},
+   {l:'78%',w:90,h:140},{l:'88%',w:70,h:100}].forEach(b=>{
+    const d=document.createElement('div');
+    d.className='building';
+    d.style.cssText=`left:${b.l};width:${b.w}px;height:${b.h}px;`;
+    for(let r=0;r<Math.floor(b.h/16);r++)
+      for(let c=0;c<Math.floor(b.w/14);c++)
+        if(Math.random()>0.4){
+          const w=document.createElement('div');
+          w.className='win-lit';
+          w.style.cssText=`left:${6+c*13}px;top:${8+r*14}px;opacity:${Math.random()>0.7?0:1}`;
+          d.appendChild(w);
+        }
+    bg.appendChild(d);
+  });
+}
+ 
+// ─── CRYPTO TRACKER ───────────────────────────────────────────────
+function updateSparkline(){
+  const sp=document.getElementById('sparkline');
+  sp.innerHTML='';
+  const prices=cryptoHistory.slice(-14);
+  const mn=Math.min(...prices),mx=Math.max(...prices),range=mx-mn||0.001;
+  prices.forEach((p,i)=>{
+    const bar=document.createElement('div');
+    bar.className='sp-bar';
+    const h=Math.max(4,((p-mn)/range)*18+4);
+    bar.style.height=h+'px';
+    bar.style.background=i>0&&p>=prices[i-1]?'#00ff88':'#ff4455';
+    sp.appendChild(bar);
+  });
+}
+ 
+function tickCrypto(){
+  if(!gameRunning) return;
+  const delta=(Math.random()-0.46)*0.003;
+  cryptoPrice=Math.max(0.001,+(cryptoPrice+delta).toFixed(4));
+  const prev=cryptoHistory[cryptoHistory.length-1];
+  cryptoHistory.push(cryptoPrice);
+  if(cryptoHistory.length>20) cryptoHistory.shift();
+  const pct=((cryptoPrice-prev)/prev*100).toFixed(2);
+  const up=cryptoPrice>=prev;
+  document.getElementById('cPrice').textContent=cryptoPrice.toFixed(4);
+  const tEl=document.getElementById('cTrend');
+  tEl.textContent=(up?'▲ +':'▼ ')+Math.abs(pct)+'%';
+  tEl.className='c-trend '+(up?'up':'dn');
+  document.getElementById('cPort').textContent=(joshCoins*cryptoPrice).toFixed(2);
+  updateSparkline();
+}
+setInterval(tickCrypto,2000);
+ 
+function refreshCryptoDisplay(){
+  document.getElementById('cCoins').textContent=joshCoins;
+  document.getElementById('cPort').textContent=(joshCoins*cryptoPrice).toFixed(2);
+  if(document.getElementById('walletLine'))
+    document.getElementById('walletLine').textContent=joshCoins;
+}
+ 
+// ─── GAME LOOP ────────────────────────────────────────────────────
+function startGame(){
+  document.getElementById('start-screen').style.display='none';
+  gameRunning=true; score=0; healed=0; joshCoins=500; totalCryptoEarned=0; refusedCount=0;
+  playerX=120; playerY=0; velY=0; isJumping=false;
+  npcs=[]; npcId=0; landlordOnScreen=false; pendingRent=0; llEl=null; llSpeechEl=null;
+  updateHUD(); refreshCryptoDisplay();
+  spawnNPCLoop(); scheduleChallenge(); scheduleLandlord();
+  lastTime=performance.now();
+  loop(lastTime);
+  showJoshSay(JOSH_SAY[Math.floor(Math.random()*JOSH_SAY.length)]);
+}
+ 
+function loop(ts){
+  if(!gameRunning) return;
+  const dt=Math.min((ts-lastTime)/1000,0.05);
+  lastTime=ts;
+  update(dt);
+  render();
+  requestAnimationFrame(loop);
+}
+ 
+function update(dt){
+  if(challengeActive||rentActive) return;
+  const W=document.getElementById('gc').clientWidth;
+  if(keys['ArrowLeft']||keys['KeyA']){
+    playerX=Math.max(20,playerX-180*dt);
+    document.getElementById('player').style.transform='scaleX(-1)';
+  } else if(keys['ArrowRight']||keys['KeyD']){
+    playerX=Math.min(W-80,playerX+180*dt);
+    document.getElementById('player').style.transform='scaleX(1)';
+  }
+  if((keys['Space']||keys['ArrowUp']||keys['KeyW'])&&!isJumping){velY=-520;isJumping=true;}
+  velY+=1200*dt; playerY-=velY*dt;
+  if(playerY<=0){playerY=0;velY=0;isJumping=false;}
+  const pl=document.getElementById('player');
+  if(keys['ArrowLeft']||keys['ArrowRight']||keys['KeyA']||keys['KeyD']){
+    if(!pl.classList.contains('walk')) pl.classList.add('walk');
+  } else pl.classList.remove('walk');
+  npcs.forEach(n=>{
+    if(n.healed) return;
+    const d=Math.abs(playerX+32-(n.x+20));
+    if(d<80&&!n.showing){n.showing=true;showNPCSpeech(n);}
+    else if(d>=80&&n.showing&&!n.healed){n.showing=false;}
+  });
+}
+ 
+function render(){
+  const h=document.getElementById('gc').clientHeight;
+  const pl=document.getElementById('player');
+  pl.style.left=playerX+'px';
+  pl.style.bottom=(h*0.38+playerY)+'px';
+}
+ 
+// ─── NPC ──────────────────────────────────────────────────────────
+function spawnNPCLoop(){
+  if(!gameRunning) return;
+  if(!landlordOnScreen) spawnNPC();
+  setTimeout(spawnNPCLoop, 3500+Math.random()*3000);
+}
+ 
+function spawnNPC(){
+  const gc=document.getElementById('gc');
+  const W=gc.clientWidth,h=gc.clientHeight;
+  const id=npcId++;
+  const type=NPC_TYPES[Math.floor(Math.random()*NPC_TYPES.length)];
+  const x=260+Math.random()*(W-360);
+  const npc={id,x,type,healed:false,showing:false,el:null,speechEl:null};
+  const el=document.createElement('div');
+  el.className='npc'; el.id='npc-'+id;
+  el.style.left=x+'px'; el.style.bottom=(h*0.38)+'px';
+  el.innerHTML=drawNPC(type);
+  el.addEventListener('click',()=>tryHealNPC(npc));
+  gc.appendChild(el); npc.el=el; npcs.push(npc);
+  setTimeout(()=>{if(!npc.healed) showNPCSpeech(npc);},400);
+  setTimeout(()=>{if(!npc.healed) removeNPC(npc);},13000);
+}
+ 
+function drawNPC(t){return`<svg viewBox="0 0 40 70" width="40" height="70" xmlns="http://www.w3.org/2000/svg">
+  <rect x="12" y="45" width="7" height="22" rx="3" fill="${t.accent}"/>
+  <rect x="21" y="45" width="7" height="22" rx="3" fill="${t.accent}" transform="rotate(10,24,45)"/>
+  <ellipse cx="14" cy="66" rx="6" ry="3" fill="#333"/>
+  <ellipse cx="25" cy="66" rx="6" ry="3" fill="#333"/>
+  <rect x="7" y="24" width="26" height="23" rx="6" fill="${t.color}"/>
+  <line x1="4" y1="30" x2="4" y2="60" stroke="#8B4513" stroke-width="3" stroke-linecap="round"/>
+  <line x1="1" y1="60" x2="9" y2="60" stroke="#8B4513" stroke-width="3" stroke-linecap="round"/>
+  <rect x="33" y="26" width="5" height="18" rx="2" fill="${t.accent}"/>
+  <ellipse cx="20" cy="15" rx="11" ry="12" fill="${t.color}"/>
+  <ellipse cx="33" cy="12" rx="2" ry="3" fill="#90d5ff" opacity="0.8"/>
+  <ellipse cx="16" cy="14" rx="2.5" ry="2.5" fill="#fff"/>
+  <ellipse cx="24" cy="14" rx="2.5" ry="2.5" fill="#fff"/>
+  <ellipse cx="16" cy="15" rx="1.2" ry="1.2" fill="#333"/>
+  <ellipse cx="24" cy="15" rx="1.2" ry="1.2" fill="#333"/>
+  <path d="M14 21 Q20 18 26 21" stroke="#555" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+</svg>`;}
+ 
+function drawHealedNPC(t){return`<svg viewBox="0 0 40 70" width="40" height="70" xmlns="http://www.w3.org/2000/svg">
+  <rect x="13" y="44" width="7" height="23" rx="3" fill="${t.accent}"/>
+  <rect x="21" y="44" width="7" height="23" rx="3" fill="${t.accent}"/>
+  <ellipse cx="16" cy="66" rx="6" ry="3" fill="#333"/>
+  <ellipse cx="25" cy="66" rx="6" ry="3" fill="#333"/>
+  <rect x="7" y="24" width="26" height="22" rx="6" fill="${t.color}"/>
+  <rect x="1" y="16" width="7" height="18" rx="3" fill="${t.accent}" transform="rotate(-30,5,16)"/>
+  <rect x="32" y="16" width="7" height="18" rx="3" fill="${t.accent}" transform="rotate(30,35,16)"/>
+  <ellipse cx="20" cy="15" rx="11" ry="12" fill="${t.color}"/>
+  <ellipse cx="16" cy="13" rx="2.5" ry="2.5" fill="#fff"/>
+  <ellipse cx="24" cy="13" rx="2.5" ry="2.5" fill="#fff"/>
+  <ellipse cx="17" cy="13" rx="1.2" ry="1.2" fill="#333"/>
+  <ellipse cx="25" cy="13" rx="1.2" ry="1.2" fill="#333"/>
+  <path d="M14 19 Q20 24 26 19" stroke="#e74c3c" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <text x="32" y="10" font-size="10" fill="#f5c518">★</text>
+  <text x="-2" y="10" font-size="10" fill="#f5c518">★</text>
+</svg>`;}
+ 
+function showNPCSpeech(npc){
+  if(npc.healed) return;
+  clearNPCSpeech(npc);
+  const gc=document.getElementById('gc'),h=gc.clientHeight;
+  const el=document.createElement('div');
+  el.className='speech';
+  el.style.left=(npc.x-55)+'px'; el.style.bottom=(h*0.38+78)+'px';
+  el.textContent=NPC_SAY[Math.floor(Math.random()*NPC_SAY.length)];
+  gc.appendChild(el); npc.speechEl=el;
+  setTimeout(()=>clearNPCSpeech(npc),3000);
+}
+function clearNPCSpeech(n){if(n.speechEl){n.speechEl.remove();n.speechEl=null;}}
+function removeNPC(n){if(n.el){n.el.remove();n.el=null;}clearNPCSpeech(n);npcs=npcs.filter(x=>x.id!==n.id);}
+ 
+function tryHeal(){
+  const cx=playerX+32; let best=null,bd=110;
+  npcs.forEach(n=>{if(n.healed)return;const d=Math.abs(cx-(n.x+20));if(d<bd){bd=d;best=n;}});
+  if(best) healNPC(best);
+}
+function tryHealNPC(n){if(n.healed||challengeActive||rentActive)return;healNPC(n);}
+function healNPC(n){
+  n.healed=true; clearNPCSpeech(n);
+  if(n.el){n.el.innerHTML=drawHealedNPC(n.type);setTimeout(()=>removeNPC(n),2500);}
+  score+=100; healed++;
+  const earned=Math.floor(5+Math.random()*15);
+  joshCoins+=earned; totalCryptoEarned+=earned;
+  updateHUD(); refreshCryptoDisplay();
+  pop(n.x,'+100 HEALED!');
+  pop(n.x+50,'+'+earned+' $JOSH','g');
+  showJoshSay(JOSH_SAY[Math.floor(Math.random()*JOSH_SAY.length)]);
+}
+ 
+// ─── CHALLENGES ───────────────────────────────────────────────────
+function scheduleChallenge(){setTimeout(()=>{if(gameRunning&&!rentActive) triggerChallenge();},12000+Math.random()*12000);}
+function triggerChallenge(){
+  if(!gameRunning||rentActive) return;
+  challengeActive=true;
+  const ch=CHALLENGES[Math.floor(Math.random()*CHALLENGES.length)];
+  chEmoji=ch.emoji; chProgress=0; chTotal=ch.count;
+  document.getElementById('chTitle').textContent=ch.title;
+  document.getElementById('chDesc').textContent=ch.desc;
+  document.getElementById('ch-btn').textContent=ch.type==='hotdog'?'🌭 EAT THE HOT DOG!':'🥞 EAT THE PANCAKE!';
+  buildDots();
+  document.getElementById('challenge-overlay').classList.add('active');
+}
+function buildDots(){
+  const bar=document.getElementById('ch-progress'); bar.innerHTML='';
+  for(let i=0;i<chTotal;i++){
+    const d=document.createElement('div');
+    d.className='pd'; d.textContent=chEmoji; d.onclick=eatOne; bar.appendChild(d);
+  }
+}
+function eatOne(){
+  if(chProgress>=chTotal) return;
+  const dots=document.querySelectorAll('.pd');
+  dots[chProgress].classList.add('eaten');
+  chProgress++;
+  score+=30; updateHUD();
+  if(chProgress>=chTotal) setTimeout(finishChallenge,600);
+}
+function finishChallenge(){
+  document.getElementById('challenge-overlay').classList.remove('active');
+  challengeActive=false;
+  score+=250;
+  const coins=Math.floor(20+Math.random()*30);
+  joshCoins+=coins; totalCryptoEarned+=coins;
+  updateHUD(); refreshCryptoDisplay();
+  pop(playerX,'+250 STUFFED!');
+  pop(playerX+60,'+'+coins+' $JOSH','g');
+  showJoshSay(chEmoji==='🥞'?"Those pancakes were LEGENDARY! 💪":"Hot dogs fuel the grind! 🚀");
+  scheduleChallenge();
+}
+ 
+// ─── LANDLORD ─────────────────────────────────────────────────────
+function scheduleLandlord(){
+  const delay = refusedCount>0 ? 8000+Math.random()*7000 : 20000+Math.random()*15000;
+  setTimeout(()=>{if(gameRunning&&!landlordOnScreen) spawnLandlord();}, delay);
+}
+ 
+function spawnLandlord(){
+  if(!gameRunning||landlordOnScreen||rentActive) return;
+  landlordOnScreen=true;
+  const gc=document.getElementById('gc');
+  const W=gc.clientWidth,h=gc.clientHeight;
+  // Rent scales with how long you've survived & refusals
+  pendingRent=Math.floor((80+Math.random()*100)*(1+refusedCount*0.5));
+ 
+  const el=document.createElement('div');
+  el.className='ll-char';
+  el.style.cssText=`left:-80px;bottom:${h*0.38}px;transition:left 2.8s ease;`;
+  el.innerHTML=drawLandlord();
+  gc.appendChild(el); llEl=el;
+ 
+  setTimeout(()=>{
+    const targetX=Math.min(W*0.7, playerX+200);
+    el.style.left=targetX+'px';
+    setTimeout(()=>{
+      showLLSpeech(LL_SAY[Math.floor(Math.random()*LL_SAY.length)]);
+      setTimeout(()=>{if(landlordOnScreen&&!rentActive) openRentOverlay();},3800);
+    },2900);
+  },50);
+}
+ 
+function drawLandlord(){return`<svg viewBox="0 0 52 92" width="52" height="92" xmlns="http://www.w3.org/2000/svg">
+  <rect x="17" y="63" width="9" height="26" rx="4" fill="#1a1a50"/>
+  <rect x="28" y="63" width="9" height="26" rx="4" fill="#1a1a50"/>
+  <ellipse cx="21" cy="88" rx="8" ry="4" fill="#111"/>
+  <ellipse cx="33" cy="88" rx="8" ry="4" fill="#111"/>
+  <rect x="10" y="35" width="32" height="30" rx="7" fill="#1a1a50"/>
+  <rect x="21" y="35" width="10" height="30" rx="2" fill="#f0f0f0"/>
+  <polygon points="24,37 28,37 26,60" fill="#c0392b"/>
+  <rect x="3" y="37" width="9" height="20" rx="4" fill="#1a1a50"/>
+  <ellipse cx="7" cy="58" rx="6" ry="5" fill="#f0c8a0"/>
+  <rect x="40" y="37" width="9" height="20" rx="4" fill="#1a1a50"/>
+  <!-- rent paper in right hand -->
+  <rect x="38" y="52" width="20" height="14" rx="3" fill="#fff" stroke="#c0392b" stroke-width="1.5"/>
+  <text x="48" y="59" font-size="5" font-family="Nunito" font-weight="900" fill="#c0392b" text-anchor="middle">RENT</text>
+  <text x="48" y="64" font-size="4" font-family="Nunito" font-weight="700" fill="#333" text-anchor="middle">PAST DUE</text>
+  <rect x="22" y="25" width="9" height="12" rx="3" fill="#f0c8a0"/>
+  <ellipse cx="26" cy="17" rx="14" ry="15" fill="#f0c8a0"/>
+  <!-- big mustache -->
+  <ellipse cx="26" cy="24" rx="11" ry="4.5" fill="#3a1a00"/>
+  <ellipse cx="19" cy="23" rx="5.5" ry="3.5" fill="#3a1a00"/>
+  <ellipse cx="33" cy="23" rx="5.5" ry="3.5" fill="#3a1a00"/>
+  <ellipse cx="21" cy="15" rx="3" ry="3" fill="#fff"/>
+  <ellipse cx="31" cy="15" rx="3" ry="3" fill="#fff"/>
+  <ellipse cx="22" cy="15" rx="1.5" ry="1.5" fill="#333"/>
+  <ellipse cx="32" cy="15" rx="1.5" ry="1.5" fill="#333"/>
+  <!-- angry brows -->
+  <rect x="17" y="10" width="7" height="2.5" rx="1" fill="#3a1a00" transform="rotate(-12,21,10)"/>
+  <rect x="28" y="10" width="7" height="2.5" rx="1" fill="#3a1a00" transform="rotate(12,32,10)"/>
+  <!-- hat -->
+  <rect x="13" y="5" width="26" height="7" rx="2" fill="#0d0d30"/>
+  <rect x="9" y="9" width="34" height="3" rx="1" fill="#0d0d30"/>
+  <text x="26" y="11" font-size="4" font-family="Nunito" font-weight="900" fill="#f5c518" text-anchor="middle">🇮🇹</text>
+</svg>`;}
+ 
+function showLLSpeech(msg){
+  if(llSpeechEl){llSpeechEl.remove();llSpeechEl=null;}
+  const gc=document.getElementById('gc'),h=gc.clientHeight;
+  const el=document.createElement('div');
+  el.className='speech ll-bub';
+  const lx=llEl?parseInt(llEl.style.left)||200:200;
+  el.style.left=(lx-90)+'px'; el.style.bottom=(h*0.38+105)+'px'; el.style.zIndex=55;
+  el.textContent=msg; gc.appendChild(el); llSpeechEl=el;
+}
+ 
+function openRentOverlay(){
+  if(!gameRunning) return;
+  rentActive=true;
+  if(llSpeechEl){llSpeechEl.remove();llSpeechEl=null;}
+  const line=LL_SAY[Math.floor(Math.random()*LL_SAY.length)];
+  document.getElementById('llQuote').textContent='"'+line+'"';
+  document.getElementById('rentAmt').textContent=pendingRent;
+  document.getElementById('walletLine').textContent=joshCoins;
+  document.getElementById('rent-overlay').classList.add('active');
+}
+ 
+function payRent(){
+  if(joshCoins>=pendingRent){
+    joshCoins-=pendingRent; refreshCryptoDisplay();
+    pop(playerX,'-'+pendingRent+' $JOSH','r');
+    showJoshSay("Rent paid... for now. Back to the hustle! 😤");
+    closeRent(false);
+  } else {
+    // Broke — game over
+    document.getElementById('rent-overlay').classList.remove('active');
+    document.getElementById('goTitle').textContent='EVICTED!';
+    document.getElementById('goReason').textContent='You ran out of $JOSH to pay the rent-a!';
+    gameEnd();
+  }
+}
+ 
+function refuseRent(){
+  refusedCount++;
+  score=Math.max(0,score-300);
+  pendingRent=Math.floor(pendingRent*1.6); // landlord angry
+  showJoshSay("I'll pay later! The crypto will 10x! 😅");
+  closeRent(true);
+}
+ 
+function closeRent(angry){
+  document.getElementById('rent-overlay').classList.remove('active');
+  rentActive=false;
+  if(llEl){
+    llEl.style.transition='left 2s ease';
+    llEl.style.left=(angry?'-200px':'-200px');
+    setTimeout(()=>{if(llEl){llEl.remove();llEl=null;}},2100);
+  }
+  if(llSpeechEl){llSpeechEl.remove();llSpeechEl=null;}
+  landlordOnScreen=false; updateHUD();
+  scheduleLandlord();
+}
+ 
+// ─── JOSH SPEECH ──────────────────────────────────────────────────
+function showJoshSay(msg){
+  document.querySelectorAll('.josh-bub').forEach(e=>e.remove());
+  if(joshTO) clearTimeout(joshTO);
+  const gc=document.getElementById('gc'),h=gc.clientHeight;
+  const el=document.createElement('div');
+  el.className='speech josh-bub';
+  el.style.cssText=`left:${playerX-55}px;bottom:${h*0.38+playerY+115}px;z-index:60;`;
+  el.textContent=msg; gc.appendChild(el);
+  joshTO=setTimeout(()=>el.remove(),3000);
+}
+ 
+// ─── SCORE POPS ───────────────────────────────────────────────────
+function pop(x,text,cls=''){
+  const gc=document.getElementById('gc'),h=gc.clientHeight;
+  const el=document.createElement('div');
+  el.className='sp'+(cls?' '+cls:'');
+  el.style.cssText=`left:${x}px;bottom:${h*0.54}px;`;
+  el.textContent=text; gc.appendChild(el);
+  setTimeout(()=>el.remove(),1100);
+}
+ 
+// ─── HUD ──────────────────────────────────────────────────────────
+function updateHUD(){
+  document.getElementById('sd').textContent=score;
+  document.getElementById('hd').textContent=healed;
+}
+ 
+// ─── TAXIS ────────────────────────────────────────────────────────
+function spawnTaxi(){
+  const gc=document.getElementById('gc'),h=gc.clientHeight;
+  const t=document.createElement('div');
+  t.className='taxi'; t.style.bottom=(h*0.17)+'px';
+  t.innerHTML=`<svg viewBox="0 0 100 50" width="100" height="50">
+    <rect x="5" y="18" width="85" height="25" rx="5" fill="#f5c518"/>
+    <rect x="15" y="8" width="55" height="18" rx="4" fill="#c9a000"/>
+    <rect x="18" y="10" width="14" height="13" rx="2" fill="#90d5ff" opacity="0.8"/>
+    <rect x="37" y="10" width="14" height="13" rx="2" fill="#90d5ff" opacity="0.8"/>
+    <rect x="56" y="10" width="11" height="13" rx="2" fill="#90d5ff" opacity="0.8"/>
+    <circle cx="22" cy="43" r="7" fill="#333"/><circle cx="22" cy="43" r="3" fill="#888"/>
+    <circle cx="74" cy="43" r="7" fill="#333"/><circle cx="74" cy="43" r="3" fill="#888"/>
+    <rect x="30" y="22" width="22" height="8" rx="2" fill="#fff"/>
+    <text x="41" y="29" font-size="6" font-family="Nunito" font-weight="900" fill="#e74c3c" text-anchor="middle">TAXI</text>
+    <rect x="86" y="22" width="8" height="6" rx="2" fill="#ff6b6b"/>
+  </svg>`;
+  t.style.animationDuration=(4+Math.random()*4)+'s';
+  t.addEventListener('animationend',()=>t.remove());
+  gc.appendChild(t);
+}
+setInterval(()=>{if(gameRunning)spawnTaxi();},3500);
+ 
+// ─── MOBILE CONTROLS ─────────────────────────────────────────────
+function addMobileControls(){
+  const gc=document.getElementById('gc');
+  const d=document.createElement('div');
+  d.style.cssText='position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:space-between;padding:0 12px;z-index:90;pointer-events:none;';
+  d.innerHTML=`
+    <div style="display:flex;gap:8px;pointer-events:all;">
+      <button ontouchstart="keys['ArrowLeft']=true" ontouchend="keys['ArrowLeft']=false" onmousedown="keys['ArrowLeft']=true" onmouseup="keys['ArrowLeft']=false" style="width:52px;height:52px;border-radius:50%;background:rgba(245,197,24,0.92);border:3px solid #c9a000;font-size:18px;cursor:pointer;font-family:Bangers;color:#1a1a2e;font-weight:900;">◀</button>
+      <button ontouchstart="keys['ArrowRight']=true" ontouchend="keys['ArrowRight']=false" onmousedown="keys['ArrowRight']=true" onmouseup="keys['ArrowRight']=false" style="width:52px;height:52px;border-radius:50%;background:rgba(245,197,24,0.92);border:3px solid #c9a000;font-size:18px;cursor:pointer;font-family:Bangers;color:#1a1a2e;font-weight:900;">▶</button>
+    </div>
+    <div style="display:flex;gap:8px;pointer-events:all;">
+      <button onclick="tryHeal()" style="height:52px;padding:0 13px;border-radius:26px;background:rgba(46,204,113,0.92);border:3px solid #1a8a4a;font-size:13px;cursor:pointer;font-family:Bangers;color:#fff;letter-spacing:1px;">HEAL</button>
+      <button ontouchstart="keys['Space']=true;setTimeout(()=>keys['Space']=false,120)" onmousedown="keys['Space']=true;setTimeout(()=>keys['Space']=false,120)" style="width:52px;height:52px;border-radius:50%;background:rgba(52,152,219,0.92);border:3px solid #1a6a9a;font-size:18px;cursor:pointer;font-family:Bangers;color:#fff;">↑</button>
+    </div>`;
+  gc.appendChild(d);
+}
+ 
+// ─── GAME END ─────────────────────────────────────────────────────
+function gameEnd(){
+  gameRunning=false;
+  document.getElementById('goScore').textContent='Final Score: '+score;
+  document.getElementById('goHealed').textContent='People Healed: '+healed;
+  document.getElementById('goCrypto').textContent='$JOSH Earned: '+totalCryptoEarned;
+  document.getElementById('go-screen').classList.add('active');
+}
+ 
+function restartGame(){
+  document.getElementById('go-screen').classList.remove('active');
+  document.getElementById('challenge-overlay').classList.remove('active');
+  document.getElementById('rent-overlay').classList.remove('active');
+  challengeActive=false; rentActive=false; landlordOnScreen=false;
+  npcs.forEach(n=>{if(n.el)n.el.remove();if(n.speechEl)n.speechEl.remove();});
+  npcs=[];
+  if(llEl){llEl.remove();llEl=null;}
+  if(llSpeechEl){llSpeechEl.remove();llSpeechEl=null;}
+  document.querySelectorAll('.speech,.sp,.taxi').forEach(e=>e.remove());
+  cryptoPrice=0.042; cryptoHistory=[];
+  for(let i=0;i<8;i++) cryptoHistory.push(+(0.038+Math.random()*0.008).toFixed(4));
+  startGame();
+}
+ 
+// ─── PERIODIC JOSH QUOTES ─────────────────────────────────────────
+setInterval(()=>{
+  if(gameRunning&&!challengeActive&&!rentActive)
+    showJoshSay(JOSH_SAY[Math.floor(Math.random()*JOSH_SAY.length)]);
+},8000);
+ 
+init();
+</script>
+</body>
+</html>
