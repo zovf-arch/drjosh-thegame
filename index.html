@@ -2,27 +2,26 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>DR. JOSH – NYC's Finest PT</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@400;700;900&display=swap');
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { background:#1a1a2e; font-family:'Nunito',sans-serif; overflow:hidden; user-select:none; }
-  #gc { position:relative; width:100vw; height:100vh; overflow:hidden; }
- 
-  #sky { position:absolute; top:0; left:0; right:0; height:42%;
-    background:linear-gradient(180deg,#0f2a5c 0%,#1e4fa8 60%,#e8a838 100%); }
-  .building { position:absolute; bottom:0; background:#0d1b3e; border-top:2px solid #1e3a6e; }
-  .building::after { content:''; position:absolute; top:0; left:0; right:0; height:100%;
-    background:repeating-linear-gradient(to right,transparent,transparent 10px,rgba(255,220,80,0.15) 10px,rgba(255,220,80,0.15) 12px); }
-  .win-lit { position:absolute; width:6px; height:8px; background:#ffe066; border-radius:1px; }
-  #ground { position:absolute; bottom:0; left:0; right:0; height:58%; }
-  #sidewalk { position:absolute; bottom:0; left:0; right:0; height:100%; background:#b0a898; }
-  #road { position:absolute; bottom:0; left:0; right:0; height:38%; background:#2c2c2c; }
-  .rline { position:absolute; top:50%; height:6px; width:80px; background:#f5c518; border-radius:3px; animation:roadScroll 0.6s linear infinite; }
-  @keyframes roadScroll { from{transform:translateX(0)} to{transform:translateX(-120px)} }
- 
-  #player { position:absolute; width:64px; height:100px; z-index:20; }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{width:100%;height:100%;overflow:hidden;touch-action:none;}
+  body{background:#1a1a2e;font-family:'Nunito',sans-serif;user-select:none;}
+  #gc{position:relative;width:100vw;height:100vh;overflow:hidden;}
+
+  #sky{position:absolute;top:0;left:0;right:0;height:42%;background:linear-gradient(180deg,#0f2a5c 0%,#1e4fa8 60%,#e8a838 100%);}
+  .building{position:absolute;bottom:0;background:#0d1b3e;border-top:2px solid #1e3a6e;}
+  .building::after{content:'';position:absolute;top:0;left:0;right:0;height:100%;background:repeating-linear-gradient(to right,transparent,transparent 10px,rgba(255,220,80,0.15) 10px,rgba(255,220,80,0.15) 12px);}
+  .win-lit{position:absolute;width:6px;height:8px;background:#ffe066;border-radius:1px;}
+  #ground{position:absolute;bottom:0;left:0;right:0;height:58%;}
+  #sidewalk{position:absolute;bottom:0;left:0;right:0;height:100%;background:#b0a898;}
+  #road{position:absolute;bottom:0;left:0;right:0;height:38%;background:#2c2c2c;}
+  .rline{position:absolute;top:50%;height:6px;width:80px;background:#f5c518;border-radius:3px;animation:roadScroll 0.6s linear infinite;}
+  @keyframes roadScroll{from{transform:translateX(0)}to{transform:translateX(-120px)}}
+
+  #player{position:absolute;width:64px;height:100px;z-index:20;}
   #player.walk .leg-l{animation:legL 0.3s infinite alternate}
   #player.walk .leg-r{animation:legR 0.3s infinite alternate}
   #player.walk .arm-l{animation:armL 0.3s infinite alternate}
@@ -31,87 +30,160 @@
   @keyframes legR{from{transform:rotate(20deg)}to{transform:rotate(-20deg)}}
   @keyframes armL{from{transform:rotate(-15deg)}to{transform:rotate(15deg)}}
   @keyframes armR{from{transform:rotate(15deg)}to{transform:rotate(-15deg)}}
- 
-  #hud { position:absolute; top:10px; left:10px; right:10px; display:flex; justify-content:space-between; align-items:flex-start; z-index:100; pointer-events:none; gap:6px; }
-  .hud-box { background:rgba(10,15,40,0.88); border:2px solid #f5c518; border-radius:12px; padding:5px 12px; font-family:'Bangers',cursive; letter-spacing:1px; color:#fff; font-size:16px; pointer-events:none; white-space:nowrap; }
-  .hud-box span { color:#f5c518; }
-  .hud-title { font-size:19px; text-align:center; }
- 
-  #crypto-hud { position:absolute; top:70px; right:10px; z-index:101; background:rgba(5,20,15,0.94); border:2px solid #00cc66; border-radius:14px; padding:8px 13px; font-family:'Bangers',cursive; color:#fff; min-width:155px; pointer-events:none; }
-  .c-label { font-size:10px; color:#00cc66; letter-spacing:2px; margin-bottom:1px; font-family:'Nunito'; font-weight:900; text-transform:uppercase; }
-  .c-coins { font-size:20px; letter-spacing:1px; }
-  .c-coins em { color:#f5c518; font-style:normal; }
-  .c-price-row { display:flex; justify-content:space-between; align-items:center; margin-top:2px; }
-  .c-price { font-size:11px; color:#aaa; font-family:'Nunito'; font-weight:700; }
-  .c-trend { font-size:11px; font-family:'Nunito'; font-weight:900; }
-  .c-trend.up { color:#00ff88; }
-  .c-trend.dn { color:#ff4455; }
-  #sparkline { display:flex; gap:2px; align-items:flex-end; height:22px; margin-top:5px; }
-  .sp-bar { flex:1; border-radius:1px 1px 0 0; min-width:7px; }
-  .c-port { margin-top:3px; font-size:10px; color:#888; font-family:'Nunito'; font-weight:700; }
-  .c-port em { color:#00cc66; font-style:normal; }
- 
-  .speech { position:absolute; background:#fff; border:3px solid #222; border-radius:14px; padding:7px 11px; font-size:12px; font-weight:700; color:#111; max-width:175px; text-align:center; z-index:50; pointer-events:none; animation:popIn 0.2s ease; line-height:1.3; }
-  .speech::after { content:''; position:absolute; bottom:-13px; left:50%; transform:translateX(-50%); border:6px solid transparent; border-top-color:#222; }
-  .josh-bub { border-color:#f5c518!important; background:#fffbe6!important; color:#7a5000!important; max-width:200px; }
-  .josh-bub::after { border-top-color:#f5c518!important; }
-  .ll-bub { border-color:#c0392b!important; background:#fff2f0!important; color:#7a0000!important; max-width:230px; font-size:13px; }
-  .ll-bub::after { border-top-color:#c0392b!important; }
-  @keyframes popIn { from{transform:scale(0.5);opacity:0} to{transform:scale(1);opacity:1} }
- 
-  .npc { position:absolute; z-index:15; display:flex; flex-direction:column; align-items:center; cursor:pointer; }
-  .ll-char { position:absolute; z-index:16; }
- 
-  #challenge-overlay { display:none; position:absolute; inset:0; background:rgba(0,0,0,0.78); z-index:200; align-items:center; justify-content:center; flex-direction:column; }
-  #challenge-overlay.active { display:flex; }
-  #ch-box { background:#fff; border:5px solid #f5c518; border-radius:24px; padding:26px 34px; text-align:center; max-width:420px; width:90%; animation:popIn 0.3s ease; }
-  #ch-box h2 { font-family:'Bangers',cursive; font-size:38px; color:#c0392b; letter-spacing:2px; margin-bottom:6px; }
-  #ch-box p { font-size:15px; color:#444; margin-bottom:16px; font-weight:700; }
-  #ch-progress { display:flex; gap:8px; justify-content:center; margin-bottom:16px; flex-wrap:wrap; }
-  .pd { width:44px; height:44px; border-radius:50%; background:#eee; border:3px solid #ccc; display:flex; align-items:center; justify-content:center; font-size:22px; cursor:pointer; transition:all 0.15s; }
-  .pd:hover{transform:scale(1.15);}
-  .pd.eaten { background:#f5c518; border-color:#c9a000; filter:grayscale(0.6) brightness(0.75); }
-  #ch-btn { background:#e74c3c; color:#fff; border:none; border-radius:12px; padding:11px 28px; font-family:'Bangers',cursive; font-size:25px; letter-spacing:1px; cursor:pointer; transition:transform 0.1s; }
-  #ch-btn:hover{transform:scale(1.06);background:#c0392b;}
- 
-  #rent-overlay { display:none; position:absolute; inset:0; background:rgba(0,0,0,0.82); z-index:210; align-items:center; justify-content:center; }
-  #rent-overlay.active { display:flex; }
-  #rent-box { background:linear-gradient(135deg,#fff9f0,#fff); border:5px solid #c0392b; border-radius:24px; padding:26px 34px; text-align:center; max-width:450px; width:92%; animation:popIn 0.35s ease; }
-  #rent-box h2 { font-family:'Bangers',cursive; font-size:34px; color:#c0392b; letter-spacing:2px; margin-bottom:6px; }
-  .ll-q { font-size:16px; color:#7a0000; font-weight:900; font-style:italic; margin:10px 0; line-height:1.5; border-left:4px solid #c0392b; padding-left:12px; text-align:left; }
-  .rent-amt { font-family:'Bangers',cursive; font-size:30px; color:#333; margin:8px 0 4px; }
-  .rent-amt span { color:#e74c3c; }
-  .wallet-line { font-size:14px; color:#555; font-weight:700; margin-bottom:14px; }
-  .wallet-line em { color:#00aa55; font-style:normal; font-size:16px; }
-  #pay-btn { background:#c0392b; color:#fff; border:none; border-radius:12px; padding:11px 28px; font-family:'Bangers',cursive; font-size:24px; letter-spacing:1px; cursor:pointer; margin-right:8px; }
-  #pay-btn:hover{transform:scale(1.05);}
-  #nope-btn { background:#555; color:#fff; border:none; border-radius:12px; padding:11px 18px; font-family:'Bangers',cursive; font-size:20px; cursor:pointer; }
-  #nope-btn:hover{transform:scale(1.05);}
- 
-  #start-screen { position:absolute; inset:0; background:linear-gradient(160deg,#0f1b4c 0%,#1a3a8a 50%,#0a0a20 100%); z-index:300; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:13px; }
-  #start-screen h1 { font-family:'Bangers',cursive; font-size:clamp(52px,10vw,96px); color:#f5c518; letter-spacing:4px; text-shadow:4px 4px 0 #c9a000,8px 8px 0 rgba(0,0,0,0.4); line-height:1; text-align:center; }
-  .sub { font-size:clamp(12px,2.5vw,18px); color:#90d5ff; font-weight:700; letter-spacing:2px; text-transform:uppercase; }
-  .desc { font-size:clamp(12px,1.8vw,15px); color:#ccc; max-width:500px; text-align:center; line-height:1.6; padding:0 20px; }
-  #start-btn { background:#f5c518; color:#1a1a2e; border:none; border-radius:16px; padding:13px 42px; font-family:'Bangers',cursive; font-size:28px; letter-spacing:2px; cursor:pointer; box-shadow:0 6px 0 #c9a000; transition:transform 0.15s,box-shadow 0.15s; }
-  #start-btn:hover{transform:translateY(-2px);box-shadow:0 8px 0 #c9a000;}
-  .ctrl-row { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
-  .ck { background:rgba(255,255,255,0.1); border-radius:10px; padding:9px 14px; color:#f5c518; font-weight:900; font-size:12px; text-align:center; }
- 
-  .sp { position:absolute; font-family:'Bangers',cursive; font-size:24px; color:#f5c518; text-shadow:2px 2px 0 #000; pointer-events:none; z-index:80; animation:fly 1s ease forwards; }
+
+  /* HUD */
+  #hud{position:absolute;top:8px;left:8px;right:8px;display:flex;justify-content:space-between;align-items:flex-start;z-index:100;pointer-events:none;gap:4px;}
+  .hud-box{background:rgba(10,15,40,0.88);border:2px solid #f5c518;border-radius:10px;padding:4px 8px;font-family:'Bangers',cursive;letter-spacing:1px;color:#fff;font-size:clamp(11px,3vw,16px);pointer-events:none;white-space:nowrap;}
+  .hud-box span{color:#f5c518;}
+  .hud-title{font-size:clamp(12px,3.5vw,18px);text-align:center;}
+
+  /* CRYPTO HUD */
+  #crypto-hud{position:absolute;top:65px;right:8px;z-index:101;background:rgba(5,20,15,0.94);border:2px solid #00cc66;border-radius:12px;padding:6px 10px;font-family:'Bangers',cursive;color:#fff;min-width:130px;pointer-events:none;}
+  .c-label{font-size:9px;color:#00cc66;letter-spacing:2px;margin-bottom:1px;font-family:'Nunito';font-weight:900;text-transform:uppercase;}
+  .c-coins{font-size:clamp(14px,4vw,20px);letter-spacing:1px;}
+  .c-coins em{color:#f5c518;font-style:normal;}
+  .c-price-row{display:flex;justify-content:space-between;align-items:center;margin-top:2px;}
+  .c-price{font-size:10px;color:#aaa;font-family:'Nunito';font-weight:700;}
+  .c-trend{font-size:10px;font-family:'Nunito';font-weight:900;}
+  .c-trend.up{color:#00ff88;}
+  .c-trend.dn{color:#ff4455;}
+  #sparkline{display:flex;gap:2px;align-items:flex-end;height:18px;margin-top:4px;}
+  .sp-bar{flex:1;border-radius:1px 1px 0 0;min-width:6px;}
+  .c-port{margin-top:2px;font-size:9px;color:#888;font-family:'Nunito';font-weight:700;}
+  .c-port em{color:#00cc66;font-style:normal;}
+
+  /* RESORT BUTTON */
+  #resort-btn{position:absolute;top:65px;left:8px;z-index:101;background:linear-gradient(135deg,#8b0000,#cc0000);border:2px solid #ff6666;border-radius:12px;padding:7px 10px;font-family:'Bangers',cursive;color:#fff;font-size:clamp(10px,2.8vw,14px);cursor:pointer;letter-spacing:1px;text-align:center;box-shadow:0 3px 8px rgba(200,0,0,0.5);transition:transform 0.15s;}
+  #resort-btn:hover,#resort-btn:active{transform:scale(1.08);}
+  #resort-btn .rb-icon{font-size:clamp(16px,4vw,22px);display:block;}
+  #resort-btn .rb-text{font-size:clamp(8px,2.2vw,11px);display:block;color:#ffcccc;letter-spacing:0.5px;}
+
+  /* SPEECH BUBBLES */
+  .speech{position:absolute;background:#fff;border:3px solid #222;border-radius:14px;padding:6px 10px;font-size:clamp(10px,2.5vw,12px);font-weight:700;color:#111;max-width:160px;text-align:center;z-index:50;pointer-events:none;animation:popIn 0.2s ease;line-height:1.3;}
+  .speech::after{content:'';position:absolute;bottom:-13px;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#222;}
+  .josh-bub{border-color:#f5c518!important;background:#fffbe6!important;color:#7a5000!important;max-width:180px;}
+  .josh-bub::after{border-top-color:#f5c518!important;}
+  .ll-bub{border-color:#c0392b!important;background:#fff2f0!important;color:#7a0000!important;max-width:210px;font-size:clamp(10px,2.5vw,13px);}
+  .ll-bub::after{border-top-color:#c0392b!important;}
+  @keyframes popIn{from{transform:scale(0.5);opacity:0}to{transform:scale(1);opacity:1}}
+
+  /* NPC */
+  .npc{position:absolute;z-index:15;display:flex;flex-direction:column;align-items:center;cursor:pointer;}
+  .ll-char{position:absolute;z-index:16;}
+
+  /* CHALLENGE */
+  #challenge-overlay{display:none;position:absolute;inset:0;background:rgba(0,0,0,0.78);z-index:200;align-items:center;justify-content:center;flex-direction:column;}
+  #challenge-overlay.active{display:flex;}
+  #ch-box{background:#fff;border:5px solid #f5c518;border-radius:24px;padding:20px 24px;text-align:center;max-width:380px;width:90%;animation:popIn 0.3s ease;}
+  #ch-box h2{font-family:'Bangers',cursive;font-size:clamp(26px,7vw,38px);color:#c0392b;letter-spacing:2px;margin-bottom:6px;}
+  #ch-box p{font-size:clamp(12px,3vw,15px);color:#444;margin-bottom:14px;font-weight:700;}
+  #ch-progress{display:flex;gap:6px;justify-content:center;margin-bottom:14px;flex-wrap:wrap;}
+  .pd{width:42px;height:42px;border-radius:50%;background:#eee;border:3px solid #ccc;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;transition:all 0.15s;}
+  .pd:hover,.pd:active{transform:scale(1.15);}
+  .pd.eaten{background:#f5c518;border-color:#c9a000;filter:grayscale(0.6) brightness(0.75);}
+  #ch-btn{background:#e74c3c;color:#fff;border:none;border-radius:12px;padding:11px 24px;font-family:'Bangers',cursive;font-size:clamp(18px,5vw,25px);letter-spacing:1px;cursor:pointer;transition:transform 0.1s;touch-action:manipulation;}
+  #ch-btn:hover,#ch-btn:active{transform:scale(1.06);background:#c0392b;}
+
+  /* RENT */
+  #rent-overlay{display:none;position:absolute;inset:0;background:rgba(0,0,0,0.82);z-index:210;align-items:center;justify-content:center;}
+  #rent-overlay.active{display:flex;}
+  #rent-box{background:linear-gradient(135deg,#fff9f0,#fff);border:5px solid #c0392b;border-radius:24px;padding:20px 24px;text-align:center;max-width:400px;width:90%;animation:popIn 0.35s ease;}
+  #rent-box h2{font-family:'Bangers',cursive;font-size:clamp(24px,6vw,34px);color:#c0392b;letter-spacing:2px;margin-bottom:6px;}
+  .ll-q{font-size:clamp(13px,3.5vw,16px);color:#7a0000;font-weight:900;font-style:italic;margin:8px 0;line-height:1.5;border-left:4px solid #c0392b;padding-left:12px;text-align:left;}
+  .rent-amt{font-family:'Bangers',cursive;font-size:clamp(22px,6vw,30px);color:#333;margin:6px 0 4px;}
+  .rent-amt span{color:#e74c3c;}
+  .wallet-line{font-size:clamp(12px,3vw,14px);color:#555;font-weight:700;margin-bottom:12px;}
+  .wallet-line em{color:#00aa55;font-style:normal;font-size:clamp(14px,4vw,16px);}
+  #pay-btn{background:#c0392b;color:#fff;border:none;border-radius:12px;padding:11px 22px;font-family:'Bangers',cursive;font-size:clamp(18px,5vw,24px);letter-spacing:1px;cursor:pointer;margin-right:8px;touch-action:manipulation;}
+  #pay-btn:hover,#pay-btn:active{transform:scale(1.05);}
+  #nope-btn{background:#555;color:#fff;border:none;border-radius:12px;padding:11px 14px;font-family:'Bangers',cursive;font-size:clamp(16px,4.5vw,20px);cursor:pointer;touch-action:manipulation;}
+  #nope-btn:hover,#nope-btn:active{transform:scale(1.05);}
+
+  /* TANKER ALERT */
+  #tanker-overlay{display:none;position:absolute;inset:0;background:rgba(0,0,0,0.85);z-index:220;align-items:center;justify-content:center;}
+  #tanker-overlay.active{display:flex;}
+  #tanker-box{background:linear-gradient(135deg,#0a0a1e,#1a1a40);border:5px solid #00aaff;border-radius:24px;padding:22px 26px;text-align:center;max-width:420px;width:90%;animation:tankShake 0.4s ease,popIn 0.3s ease;box-shadow:0 0 40px rgba(0,170,255,0.4);}
+  @keyframes tankShake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+  #tanker-box .t-flag{font-size:48px;margin-bottom:6px;animation:flagWave 1s ease-in-out infinite;}
+  @keyframes flagWave{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+  #tanker-box h2{font-family:'Bangers',cursive;font-size:clamp(18px,5vw,28px);color:#00aaff;letter-spacing:2px;margin-bottom:8px;line-height:1.2;}
+  #tanker-box .t-sub{font-size:clamp(11px,3vw,14px);color:#aaa;font-weight:700;margin-bottom:12px;line-height:1.5;}
+  #tanker-box .t-cost{font-family:'Bangers',cursive;font-size:clamp(22px,6vw,32px);color:#f5c518;margin:8px 0;}
+  #tanker-box .t-wallet{font-size:clamp(12px,3vw,14px);color:#888;font-weight:700;margin-bottom:14px;}
+  #t-pay-btn{background:linear-gradient(135deg,#0055aa,#0077cc);color:#fff;border:none;border-radius:12px;padding:12px 24px;font-family:'Bangers',cursive;font-size:clamp(18px,5vw,24px);cursor:pointer;margin-right:8px;letter-spacing:1px;touch-action:manipulation;}
+  #t-pay-btn:hover,#t-pay-btn:active{transform:scale(1.05);}
+  #t-ignore-btn{background:#333;color:#aaa;border:none;border-radius:12px;padding:12px 16px;font-family:'Bangers',cursive;font-size:clamp(15px,4vw,19px);cursor:pointer;touch-action:manipulation;}
+  #t-ignore-btn:hover,#t-ignore-btn:active{transform:scale(1.05);}
+
+  /* CASINO */
+  #casino-overlay{display:none;position:absolute;inset:0;background:rgba(0,0,0,0.9);z-index:230;align-items:center;justify-content:center;}
+  #casino-overlay.active{display:flex;}
+  #casino-box{background:linear-gradient(160deg,#0d0d0d,#1a0d00,#0d0d0d);border:4px solid #c9a000;border-radius:24px;padding:22px 20px;text-align:center;max-width:400px;width:92%;animation:popIn 0.3s ease;box-shadow:0 0 60px rgba(200,160,0,0.3);}
+  #casino-box h2{font-family:'Bangers',cursive;font-size:clamp(28px,8vw,44px);color:#f5c518;letter-spacing:3px;text-shadow:0 0 20px rgba(245,197,24,0.6);}
+  .casino-sub{font-size:clamp(10px,2.5vw,13px);color:#888;font-weight:700;margin-bottom:14px;letter-spacing:2px;text-transform:uppercase;}
+  .slot-machine{display:flex;gap:8px;justify-content:center;margin:14px 0;background:#0a0a0a;border:3px solid #c9a000;border-radius:16px;padding:14px 10px;}
+  .slot-reel{width:70px;height:80px;background:#111;border:2px solid #444;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:42px;transition:transform 0.1s;overflow:hidden;position:relative;}
+  .slot-reel.spin{animation:reelSpin 0.12s linear infinite;}
+  @keyframes reelSpin{0%{transform:translateY(0)}25%{transform:translateY(-10px)}75%{transform:translateY(10px)}100%{transform:translateY(0)}}
+  .bet-controls{display:flex;gap:8px;align-items:center;justify-content:center;margin:10px 0;}
+  .bet-btn{background:#2a2a00;border:2px solid #c9a000;color:#f5c518;border-radius:8px;padding:6px 12px;font-family:'Bangers',cursive;font-size:18px;cursor:pointer;touch-action:manipulation;}
+  .bet-btn:active{background:#4a4a00;}
+  #bet-display{font-family:'Bangers',cursive;font-size:clamp(20px,5vw,26px);color:#f5c518;min-width:100px;text-align:center;}
+  #spin-btn{background:linear-gradient(135deg,#8b0000,#cc0000);color:#fff;border:none;border-radius:14px;padding:13px 28px;font-family:'Bangers',cursive;font-size:clamp(22px,6vw,30px);letter-spacing:2px;cursor:pointer;margin:8px 0;box-shadow:0 4px 0 #600000;transition:all 0.1s;touch-action:manipulation;width:100%;}
+  #spin-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #600000;}
+  #spin-btn:disabled{background:#444;box-shadow:0 4px 0 #222;cursor:default;}
+  .casino-wallet{font-size:clamp(13px,3.5vw,16px);color:#aaa;font-weight:700;margin:4px 0;}
+  .casino-wallet em{color:#00ff88;font-style:normal;}
+  #casino-result{font-family:'Bangers',cursive;font-size:clamp(22px,6vw,32px);min-height:44px;margin:6px 0;letter-spacing:1px;}
+  #casino-result.win{color:#00ff88;text-shadow:0 0 20px rgba(0,255,136,0.5);}
+  #casino-result.lose{color:#ff4455;}
+  #casino-result.jackpot{color:#f5c518;animation:jackpotPulse 0.5s infinite alternate;font-size:clamp(28px,7vw,40px);}
+  @keyframes jackpotPulse{from{text-shadow:0 0 10px #f5c518}to{text-shadow:0 0 40px #f5c518,0 0 80px #ff9900}}
+  .paytable{font-size:clamp(9px,2vw,11px);color:#666;font-weight:700;margin-top:8px;line-height:1.8;text-align:left;padding:0 6px;}
+  .paytable span{color:#f5c518;}
+  #close-casino-btn{background:#333;color:#888;border:none;border-radius:10px;padding:9px 20px;font-family:'Bangers',cursive;font-size:clamp(16px,4vw,20px);cursor:pointer;margin-top:8px;touch-action:manipulation;}
+  #close-casino-btn:active{background:#555;}
+
+  /* START SCREEN */
+  #start-screen{position:absolute;inset:0;background:linear-gradient(160deg,#0f1b4c 0%,#1a3a8a 50%,#0a0a20 100%);z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:20px;}
+  #start-screen h1{font-family:'Bangers',cursive;font-size:clamp(48px,14vw,96px);color:#f5c518;letter-spacing:4px;text-shadow:4px 4px 0 #c9a000,8px 8px 0 rgba(0,0,0,0.4);line-height:1;text-align:center;}
+  .sub{font-size:clamp(10px,3vw,18px);color:#90d5ff;font-weight:700;letter-spacing:2px;text-transform:uppercase;text-align:center;}
+  .desc{font-size:clamp(11px,2.5vw,15px);color:#ccc;max-width:480px;text-align:center;line-height:1.6;}
+  #start-btn{background:#f5c518;color:#1a1a2e;border:none;border-radius:16px;padding:13px 40px;font-family:'Bangers',cursive;font-size:clamp(22px,6vw,28px);letter-spacing:2px;cursor:pointer;box-shadow:0 6px 0 #c9a000;transition:transform 0.15s,box-shadow 0.15s;touch-action:manipulation;}
+  #start-btn:active{transform:translateY(2px);box-shadow:0 3px 0 #c9a000;}
+  .ctrl-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
+  .ck{background:rgba(255,255,255,0.1);border-radius:10px;padding:7px 12px;color:#f5c518;font-weight:900;font-size:clamp(10px,2.5vw,12px);text-align:center;}
+
+  /* SCORE POPS */
+  .sp{position:absolute;font-family:'Bangers',cursive;font-size:clamp(18px,5vw,24px);color:#f5c518;text-shadow:2px 2px 0 #000;pointer-events:none;z-index:80;animation:fly 1s ease forwards;}
   .sp.g{color:#00ff88!important;}
   .sp.r{color:#ff4455!important;}
   @keyframes fly{from{transform:translateY(0);opacity:1}to{transform:translateY(-65px);opacity:0}}
- 
-  #go-screen { display:none; position:absolute; inset:0; background:rgba(10,10,30,0.92); z-index:300; align-items:center; justify-content:center; flex-direction:column; gap:12px; }
+
+  /* GAME OVER */
+  #go-screen{display:none;position:absolute;inset:0;background:rgba(10,10,30,0.92);z-index:300;align-items:center;justify-content:center;flex-direction:column;gap:10px;padding:20px;}
   #go-screen.active{display:flex;}
-  #go-screen h2 { font-family:'Bangers',cursive; font-size:68px; color:#e74c3c; letter-spacing:3px; text-shadow:4px 4px 0 #7a0000; }
-  #go-screen p { color:#ddd; font-size:17px; font-weight:700; }
-  #go-screen .sub2 { color:#ff9900; font-size:14px; font-family:'Nunito'; font-weight:900; }
-  #rbtn { background:#f5c518; color:#1a1a2e; border:none; border-radius:12px; padding:12px 36px; font-family:'Bangers',cursive; font-size:25px; letter-spacing:2px; cursor:pointer; }
-  #rbtn:hover{transform:scale(1.05);}
- 
-  .taxi { position:absolute; z-index:12; animation:taxiGo linear; }
-  @keyframes taxiGo { from{left:-120px} to{left:110%} }
+  #go-screen h2{font-family:'Bangers',cursive;font-size:clamp(48px,14vw,68px);color:#e74c3c;letter-spacing:3px;text-shadow:4px 4px 0 #7a0000;text-align:center;}
+  #go-screen p{color:#ddd;font-size:clamp(14px,4vw,17px);font-weight:700;text-align:center;}
+  #go-screen .sub2{color:#ff9900;font-size:clamp(11px,3vw,14px);font-family:'Nunito';font-weight:900;text-align:center;}
+  #rbtn{background:#f5c518;color:#1a1a2e;border:none;border-radius:12px;padding:12px 36px;font-family:'Bangers',cursive;font-size:clamp(20px,5vw,25px);letter-spacing:2px;cursor:pointer;touch-action:manipulation;}
+  #rbtn:active{transform:scale(1.05);}
+
+  /* MOBILE CONTROLS */
+  #mobile-controls{position:absolute;bottom:env(safe-area-inset-bottom,10px);left:0;right:0;display:flex;justify-content:space-between;padding:0 10px;z-index:90;pointer-events:none;}
+  .mc-left,.mc-right{display:flex;gap:8px;pointer-events:all;}
+  .mc-btn{width:54px;height:54px;border-radius:50%;background:rgba(245,197,24,0.88);border:3px solid #c9a000;font-size:20px;cursor:pointer;font-family:Bangers;color:#1a1a2e;font-weight:900;display:flex;align-items:center;justify-content:center;touch-action:manipulation;-webkit-touch-callout:none;}
+  .mc-btn:active{background:rgba(245,197,24,1);transform:scale(0.95);}
+  .mc-heal{background:rgba(46,204,113,0.9)!important;border-color:#1a8a4a!important;color:#fff!important;width:auto!important;padding:0 13px!important;border-radius:27px!important;font-size:13px!important;letter-spacing:1px;}
+  .mc-jump{background:rgba(52,152,219,0.9)!important;border-color:#1a6a9a!important;color:#fff!important;}
+
+  .taxi{position:absolute;z-index:12;animation:taxiGo linear;}
+  @keyframes taxiGo{from{left:-120px}to{left:110%}}
+
+  /* TANKER ALERT TICKER */
+  .news-ticker{position:absolute;top:0;left:0;right:0;background:rgba(200,0,0,0.95);color:#fff;font-family:'Bangers',cursive;font-size:clamp(13px,3.5vw,18px);letter-spacing:2px;padding:6px 0;z-index:150;display:flex;overflow:hidden;pointer-events:none;}
+  .news-scroll{white-space:nowrap;animation:tickerScroll 6s linear;}
+  @keyframes tickerScroll{from{transform:translateX(100vw)}to{transform:translateX(-100%)}}
 </style>
 </head>
 <body>
@@ -129,7 +201,7 @@
       <div class="rline" style="left:720px;animation-delay:1.8s"></div>
     </div>
   </div>
- 
+
   <!-- PLAYER -->
   <div id="player" class="walk">
     <svg viewBox="0 0 64 100" width="64" height="100" xmlns="http://www.w3.org/2000/svg">
@@ -161,26 +233,33 @@
       <text x="32" y="17" font-size="4" font-family="Nunito" font-weight="900" fill="#1a1a00" text-anchor="middle">DR</text>
     </svg>
   </div>
- 
+
   <!-- HUD -->
   <div id="hud">
     <div class="hud-box">SCORE: <span id="sd">0</span></div>
-    <div class="hud-box hud-title">DR. JOSH<br><span style="font-size:11px;color:#90d5ff;font-family:Nunito;font-weight:700;">NYC Physical Therapist</span></div>
+    <div class="hud-box hud-title">DR. JOSH<br><span style="font-size:clamp(9px,2vw,11px);color:#90d5ff;font-family:Nunito;font-weight:700;">NYC Physical Therapist</span></div>
     <div class="hud-box">HEALED: <span id="hd">0</span></div>
   </div>
- 
+
   <!-- CRYPTO TRACKER -->
   <div id="crypto-hud">
     <div class="c-label">💎 $JOSH Wallet</div>
     <div class="c-coins">🪙 <em id="cCoins">500</em> $JOSH</div>
     <div class="c-price-row">
-      <div class="c-price">$<em id="cPrice">0.0420</em> / coin</div>
+      <div class="c-price">$<em id="cPrice">0.0420</em></div>
       <div class="c-trend up" id="cTrend">▲ +0.00%</div>
     </div>
     <div id="sparkline"></div>
-    <div class="c-port">Portfolio: $<em id="cPort">21.00</em> USD</div>
+    <div class="c-port">Portfolio: $<em id="cPort">21.00</em></div>
   </div>
- 
+
+  <!-- RESORTS WORLD BUTTON -->
+  <button id="resort-btn" onclick="openCasino()">
+    <span class="rb-icon">🎰</span>
+    <span>RESORTS WORLD</span>
+    <span class="rb-text">Gamble $JOSH</span>
+  </button>
+
   <!-- CHALLENGE -->
   <div id="challenge-overlay">
     <div id="ch-box">
@@ -190,7 +269,7 @@
       <button id="ch-btn" onclick="eatOne()">EAT IT!</button>
     </div>
   </div>
- 
+
   <!-- RENT -->
   <div id="rent-overlay">
     <div id="rent-box">
@@ -202,21 +281,64 @@
       <button id="nope-btn" onclick="refuseRent()">LATER!</button>
     </div>
   </div>
- 
+
+  <!-- TANKER ALERT -->
+  <div id="tanker-overlay">
+    <div id="tanker-box">
+      <div class="t-flag">⚓🇺🇸🚢</div>
+      <h2>🚨 BREAKING NEWS 🚨<br>ROMEO'S TANKERS HAVE BEEN SEIZED BY THE US NAVY!</h2>
+      <div class="t-sub" id="tankerDesc">The USS Gerald R. Ford has intercepted Romeo's entire tanker fleet in international waters. Legal fees and diplomatic bribes are required immediately.</div>
+      <div class="t-cost">💸 BRIBE COST: <span id="tankerCost">0</span> $JOSH</div>
+      <div class="t-wallet">Your wallet: <em id="tankerWallet">0</em> $JOSH</div>
+      <button id="t-pay-btn" onclick="payTanker()">PAY THE BRIBE! 🤝</button>
+      <button id="t-ignore-btn" onclick="ignoreTanker()">NOT MY PROBLEM</button>
+    </div>
+  </div>
+
+  <!-- CASINO -->
+  <div id="casino-overlay">
+    <div id="casino-box">
+      <h2>🎰 RESORTS WORLD</h2>
+      <div class="casino-sub">Queens, NYC • Bet $JOSH & Get Rich (or Die Tryin')</div>
+      <div class="slot-machine">
+        <div class="slot-reel" id="reel0">🎰</div>
+        <div class="slot-reel" id="reel1">🎰</div>
+        <div class="slot-reel" id="reel2">🎰</div>
+      </div>
+      <div class="bet-controls">
+        <button class="bet-btn" onclick="changeBet(-10)">-10</button>
+        <button class="bet-btn" onclick="changeBet(-50)">-50</button>
+        <div id="bet-display">BET: <span id="betAmt">10</span></div>
+        <button class="bet-btn" onclick="changeBet(50)">+50</button>
+        <button class="bet-btn" onclick="changeBet(10)">+10</button>
+      </div>
+      <div class="casino-wallet">Wallet: <em id="casinoWallet">500</em> $JOSH</div>
+      <div id="casino-result"></div>
+      <button id="spin-btn" onclick="doSpin()">🎰 SPIN!</button>
+      <div class="paytable">
+        <span>🍒🍒🍒</span> = 2x &nbsp; <span>🍋🍋🍋</span> = 3x &nbsp; <span>🔔🔔🔔</span> = 5x<br>
+        <span>💎💎💎</span> = 10x &nbsp; <span>7️⃣7️⃣7️⃣</span> = 25x JACKPOT!<br>
+        <span>Any two match</span> = 1.5x (push)
+      </div>
+      <button id="close-casino-btn" onclick="closeCasino()">LEAVE CASINO</button>
+    </div>
+  </div>
+
   <!-- START -->
   <div id="start-screen">
     <h1>DR. JOSH</h1>
     <div class="sub">NYC's #1 Street Physical Therapist</div>
-    <div class="desc">Heal injured New Yorkers, eat pancakes &amp; hot dogs, stack $JOSH crypto — but watch out for your Italian landlord!</div>
+    <div class="desc">Heal New Yorkers, eat pancakes &amp; hot dogs, stack $JOSH crypto — dodge the Italian landlord, avoid Navy seizures &amp; try your luck at Resorts World!</div>
     <div class="ctrl-row">
       <div class="ck">← → MOVE</div>
       <div class="ck">SPACE JUMP</div>
-      <div class="ck">E  HEAL</div>
+      <div class="ck">E HEAL</div>
+      <div class="ck">🎰 CASINO</div>
     </div>
     <button id="start-btn" onclick="startGame()">LET'S GO, DOC!</button>
-    <div style="font-size:11px;color:#777;font-weight:700;letter-spacing:1px;">Buy my Crypto coin! 🚀</div>
+    <div style="font-size:clamp(10px,2.5vw,11px);color:#777;font-weight:700;letter-spacing:1px;">Buy $JOSH token! 🚀 | Gamble responsibly (just kidding)</div>
   </div>
- 
+
   <!-- GAME OVER -->
   <div id="go-screen">
     <h2 id="goTitle">EVICTED!</h2>
@@ -226,23 +348,40 @@
     <div class="sub2" id="goReason"></div>
     <button id="rbtn" onclick="restartGame()">PLAY AGAIN!</button>
   </div>
+
+  <!-- MOBILE CONTROLS -->
+  <div id="mobile-controls">
+    <div class="mc-left">
+      <button class="mc-btn" id="btn-left">◀</button>
+      <button class="mc-btn" id="btn-right">▶</button>
+    </div>
+    <div class="mc-right">
+      <button class="mc-btn mc-heal" id="btn-heal">HEAL</button>
+      <button class="mc-btn mc-jump" id="btn-jump">↑</button>
+    </div>
+  </div>
 </div>
- 
+
 <script>
 // ─── STATE ────────────────────────────────────────────────────────
 let score=0,healed=0,joshCoins=500,gameRunning=false;
 let playerX=120,playerY=0,velY=0,isJumping=false;
 let keys={},npcs=[],npcId=0;
-let challengeActive=false,rentActive=false;
+let challengeActive=false,rentActive=false,casinoActive=false,tankerActive=false;
 let chProgress=0,chTotal=0,chEmoji='';
 let joshTO=null,lastTime=0;
 let pendingRent=0,llEl=null,llSpeechEl=null,landlordOnScreen=false;
 let cryptoPrice=0.042,cryptoHistory=[];
-let totalCryptoEarned=0,refusedCount=0;
- 
+let totalCryptoEarned=0,refusedCount=0,tankerIgnoreCount=0;
+let betAmount=10,isSpinning=false;
+let tankerCostAmt=0;
+
 for(let i=0;i<8;i++) cryptoHistory.push(+(0.038+Math.random()*0.008).toFixed(4));
 cryptoPrice=cryptoHistory[cryptoHistory.length-1];
- 
+
+const SLOT_SYMBOLS=['🍒','🍋','🍋','🔔','🔔','💎','💎','7️⃣'];
+const SLOT_PAYOUTS={'🍒🍒🍒':2,'🍋🍋🍋':3,'🔔🔔🔔':5,'💎💎💎':10,'7️⃣7️⃣7️⃣':25};
+
 const JOSH_SAY=[
   "Buy my Crypto coin! 🚀","HODL tight, buddy!","To the moon! 🌙",
   "Crypto cures everything!","PT and DeFi, baby!","My coin just 10x'd!",
@@ -263,15 +402,20 @@ const LL_SAY=[
   "Mamma mia Docta Josha! Gimme-a the rent-a coins-a!",
   "Josha! No more-a crypto excusa! Paya the rent-a!",
   "Ayy! I find-a you everywhere-a Docta Josha! Now paya!",
-  "Docta Josha, you-a always-a buy-a the crypto-a but never-a paya rent-a!",
   "I-a bring-a my cousin Vinny-a if you no paya rent-a!",
+];
+const TANKER_DESCS=[
+  "The USS Gerald R. Ford has intercepted Romeo's entire fleet in international waters. Legal fees and diplomatic bribes required IMMEDIATELY.",
+  "Three of Romeo's tankers were flagged for 'suspicious cargo' (pancakes). The Navy wants compensation to look the other way.",
+  "Romeo's shipping empire is under siege! A rear admiral says this goes away for the right price. Pay now!",
+  "The 7th Fleet seized everything. Romeo is FURIOUS. Bribe the admiral before Romeo takes it out of your rent!",
+  "BREAKING: Romeo's tanker captain tried to outrun a destroyer. It did not go well. Pay up to free the crew!",
 ];
 const NPC_TYPES=[
   {color:'#e8d5b0',accent:'#c9b48a'},{color:'#d4896a',accent:'#b8623e'},
   {color:'#8b5e3c',accent:'#6b4226'},{color:'#f0c8a0',accent:'#d4a06a'},
   {color:'#c8a882',accent:'#a88860'},
 ];
-// Only pancakes and hotdogs!
 const CHALLENGES=[
   {type:'pancakes',emoji:'🥞',title:'PANCAKE EMERGENCY!',desc:"Dr. Josh spotted a stack of pancakes. He is POWERLESS to resist.",count:6},
   {type:'hotdog',emoji:'🌭',title:"NATHAN'S FAMOUS!",desc:"A hot dog cart appeared. Dr. Josh WILL eat every single one.",count:7},
@@ -280,20 +424,20 @@ const CHALLENGES=[
   {type:'pancakes',emoji:'🥞',title:'BREAKFAST CRISIS!',desc:"8 stacks of pancakes. Dr. Josh has no choice. Zero self-control.",count:8},
   {type:'hotdog',emoji:'🌭',title:'STREET CART SABOTAGE!',desc:"The hot dogs called to Dr. Josh. He answered.",count:5},
 ];
- 
+
 // ─── INIT ─────────────────────────────────────────────────────────
 function init(){
   buildBuildings();
   window.addEventListener('keydown',e=>{
     keys[e.code]=true;
     if(e.code==='Space') e.preventDefault();
-    if(e.code==='KeyE'&&gameRunning&&!challengeActive&&!rentActive) tryHeal();
+    if(e.code==='KeyE'&&gameRunning&&!challengeActive&&!rentActive&&!casinoActive&&!tankerActive) tryHeal();
   });
   window.addEventListener('keyup',e=>{keys[e.code]=false;});
-  addMobileControls();
+  setupMobileControls();
   updateSparkline();
 }
- 
+
 function buildBuildings(){
   const bg=document.getElementById('bldgs');
   [{l:'2%',w:60,h:80},{l:'8%',w:90,h:130},{l:'16%',w:50,h:60},
@@ -314,23 +458,42 @@ function buildBuildings(){
     bg.appendChild(d);
   });
 }
- 
-// ─── CRYPTO TRACKER ───────────────────────────────────────────────
+
+// ─── MOBILE CONTROLS ─────────────────────────────────────────────
+function setupMobileControls(){
+  const btnL=document.getElementById('btn-left');
+  const btnR=document.getElementById('btn-right');
+  const btnJ=document.getElementById('btn-jump');
+  const btnH=document.getElementById('btn-heal');
+  function press(k,v){return e=>{e.preventDefault();keys[k]=v;};}
+  btnL.addEventListener('touchstart',press('ArrowLeft',true),{passive:false});
+  btnL.addEventListener('touchend',press('ArrowLeft',false),{passive:false});
+  btnL.addEventListener('mousedown',press('ArrowLeft',true));
+  btnL.addEventListener('mouseup',press('ArrowLeft',false));
+  btnR.addEventListener('touchstart',press('ArrowRight',true),{passive:false});
+  btnR.addEventListener('touchend',press('ArrowRight',false),{passive:false});
+  btnR.addEventListener('mousedown',press('ArrowRight',true));
+  btnR.addEventListener('mouseup',press('ArrowRight',false));
+  btnJ.addEventListener('touchstart',e=>{e.preventDefault();keys['Space']=true;setTimeout(()=>keys['Space']=false,120);},{passive:false});
+  btnJ.addEventListener('mousedown',()=>{keys['Space']=true;setTimeout(()=>keys['Space']=false,120);});
+  btnH.addEventListener('touchstart',e=>{e.preventDefault();if(gameRunning&&!challengeActive&&!rentActive&&!casinoActive&&!tankerActive)tryHeal();},{passive:false});
+  btnH.addEventListener('mousedown',()=>{if(gameRunning&&!challengeActive&&!rentActive&&!casinoActive&&!tankerActive)tryHeal();});
+}
+
+// ─── CRYPTO ───────────────────────────────────────────────────────
 function updateSparkline(){
-  const sp=document.getElementById('sparkline');
-  sp.innerHTML='';
+  const sp=document.getElementById('sparkline'); sp.innerHTML='';
   const prices=cryptoHistory.slice(-14);
   const mn=Math.min(...prices),mx=Math.max(...prices),range=mx-mn||0.001;
   prices.forEach((p,i)=>{
     const bar=document.createElement('div');
     bar.className='sp-bar';
-    const h=Math.max(4,((p-mn)/range)*18+4);
+    const h=Math.max(3,((p-mn)/range)*14+3);
     bar.style.height=h+'px';
     bar.style.background=i>0&&p>=prices[i-1]?'#00ff88':'#ff4455';
     sp.appendChild(bar);
   });
 }
- 
 function tickCrypto(){
   if(!gameRunning) return;
   const delta=(Math.random()-0.46)*0.003;
@@ -348,38 +511,41 @@ function tickCrypto(){
   updateSparkline();
 }
 setInterval(tickCrypto,2000);
- 
+
 function refreshCryptoDisplay(){
   document.getElementById('cCoins').textContent=joshCoins;
   document.getElementById('cPort').textContent=(joshCoins*cryptoPrice).toFixed(2);
-  if(document.getElementById('walletLine'))
-    document.getElementById('walletLine').textContent=joshCoins;
+  const wl=document.getElementById('walletLine');
+  if(wl) wl.textContent=joshCoins;
+  document.getElementById('casinoWallet').textContent=joshCoins;
 }
- 
+
 // ─── GAME LOOP ────────────────────────────────────────────────────
 function startGame(){
   document.getElementById('start-screen').style.display='none';
-  gameRunning=true; score=0; healed=0; joshCoins=500; totalCryptoEarned=0; refusedCount=0;
+  gameRunning=true; score=0; healed=0; joshCoins=500; totalCryptoEarned=0; refusedCount=0; tankerIgnoreCount=0;
   playerX=120; playerY=0; velY=0; isJumping=false;
   npcs=[]; npcId=0; landlordOnScreen=false; pendingRent=0; llEl=null; llSpeechEl=null;
+  betAmount=10;
   updateHUD(); refreshCryptoDisplay();
-  spawnNPCLoop(); scheduleChallenge(); scheduleLandlord();
+  spawnNPCLoop(); scheduleChallenge(); scheduleLandlord(); scheduleTanker();
   lastTime=performance.now();
   loop(lastTime);
   showJoshSay(JOSH_SAY[Math.floor(Math.random()*JOSH_SAY.length)]);
 }
- 
+
 function loop(ts){
   if(!gameRunning) return;
   const dt=Math.min((ts-lastTime)/1000,0.05);
   lastTime=ts;
-  update(dt);
-  render();
+  update(dt); render();
   requestAnimationFrame(loop);
 }
- 
+
+function isBlocked(){return challengeActive||rentActive||casinoActive||tankerActive;}
+
 function update(dt){
-  if(challengeActive||rentActive) return;
+  if(isBlocked()) return;
   const W=document.getElementById('gc').clientWidth;
   if(keys['ArrowLeft']||keys['KeyA']){
     playerX=Math.max(20,playerX-180*dt);
@@ -402,21 +568,20 @@ function update(dt){
     else if(d>=80&&n.showing&&!n.healed){n.showing=false;}
   });
 }
- 
+
 function render(){
   const h=document.getElementById('gc').clientHeight;
   const pl=document.getElementById('player');
   pl.style.left=playerX+'px';
   pl.style.bottom=(h*0.38+playerY)+'px';
 }
- 
+
 // ─── NPC ──────────────────────────────────────────────────────────
 function spawnNPCLoop(){
   if(!gameRunning) return;
   if(!landlordOnScreen) spawnNPC();
   setTimeout(spawnNPCLoop, 3500+Math.random()*3000);
 }
- 
 function spawnNPC(){
   const gc=document.getElementById('gc');
   const W=gc.clientWidth,h=gc.clientHeight;
@@ -429,53 +594,41 @@ function spawnNPC(){
   el.style.left=x+'px'; el.style.bottom=(h*0.38)+'px';
   el.innerHTML=drawNPC(type);
   el.addEventListener('click',()=>tryHealNPC(npc));
+  el.addEventListener('touchend',e=>{e.preventDefault();tryHealNPC(npc);});
   gc.appendChild(el); npc.el=el; npcs.push(npc);
   setTimeout(()=>{if(!npc.healed) showNPCSpeech(npc);},400);
   setTimeout(()=>{if(!npc.healed) removeNPC(npc);},13000);
 }
- 
 function drawNPC(t){return`<svg viewBox="0 0 40 70" width="40" height="70" xmlns="http://www.w3.org/2000/svg">
   <rect x="12" y="45" width="7" height="22" rx="3" fill="${t.accent}"/>
   <rect x="21" y="45" width="7" height="22" rx="3" fill="${t.accent}" transform="rotate(10,24,45)"/>
-  <ellipse cx="14" cy="66" rx="6" ry="3" fill="#333"/>
-  <ellipse cx="25" cy="66" rx="6" ry="3" fill="#333"/>
+  <ellipse cx="14" cy="66" rx="6" ry="3" fill="#333"/><ellipse cx="25" cy="66" rx="6" ry="3" fill="#333"/>
   <rect x="7" y="24" width="26" height="23" rx="6" fill="${t.color}"/>
   <line x1="4" y1="30" x2="4" y2="60" stroke="#8B4513" stroke-width="3" stroke-linecap="round"/>
   <line x1="1" y1="60" x2="9" y2="60" stroke="#8B4513" stroke-width="3" stroke-linecap="round"/>
   <rect x="33" y="26" width="5" height="18" rx="2" fill="${t.accent}"/>
   <ellipse cx="20" cy="15" rx="11" ry="12" fill="${t.color}"/>
-  <ellipse cx="33" cy="12" rx="2" ry="3" fill="#90d5ff" opacity="0.8"/>
-  <ellipse cx="16" cy="14" rx="2.5" ry="2.5" fill="#fff"/>
-  <ellipse cx="24" cy="14" rx="2.5" ry="2.5" fill="#fff"/>
-  <ellipse cx="16" cy="15" rx="1.2" ry="1.2" fill="#333"/>
-  <ellipse cx="24" cy="15" rx="1.2" ry="1.2" fill="#333"/>
+  <ellipse cx="16" cy="14" rx="2.5" ry="2.5" fill="#fff"/><ellipse cx="24" cy="14" rx="2.5" ry="2.5" fill="#fff"/>
+  <ellipse cx="16" cy="15" rx="1.2" ry="1.2" fill="#333"/><ellipse cx="24" cy="15" rx="1.2" ry="1.2" fill="#333"/>
   <path d="M14 21 Q20 18 26 21" stroke="#555" stroke-width="1.5" fill="none" stroke-linecap="round"/>
 </svg>`;}
- 
 function drawHealedNPC(t){return`<svg viewBox="0 0 40 70" width="40" height="70" xmlns="http://www.w3.org/2000/svg">
-  <rect x="13" y="44" width="7" height="23" rx="3" fill="${t.accent}"/>
-  <rect x="21" y="44" width="7" height="23" rx="3" fill="${t.accent}"/>
-  <ellipse cx="16" cy="66" rx="6" ry="3" fill="#333"/>
-  <ellipse cx="25" cy="66" rx="6" ry="3" fill="#333"/>
+  <rect x="13" y="44" width="7" height="23" rx="3" fill="${t.accent}"/><rect x="21" y="44" width="7" height="23" rx="3" fill="${t.accent}"/>
+  <ellipse cx="16" cy="66" rx="6" ry="3" fill="#333"/><ellipse cx="25" cy="66" rx="6" ry="3" fill="#333"/>
   <rect x="7" y="24" width="26" height="22" rx="6" fill="${t.color}"/>
   <rect x="1" y="16" width="7" height="18" rx="3" fill="${t.accent}" transform="rotate(-30,5,16)"/>
   <rect x="32" y="16" width="7" height="18" rx="3" fill="${t.accent}" transform="rotate(30,35,16)"/>
   <ellipse cx="20" cy="15" rx="11" ry="12" fill="${t.color}"/>
-  <ellipse cx="16" cy="13" rx="2.5" ry="2.5" fill="#fff"/>
-  <ellipse cx="24" cy="13" rx="2.5" ry="2.5" fill="#fff"/>
-  <ellipse cx="17" cy="13" rx="1.2" ry="1.2" fill="#333"/>
-  <ellipse cx="25" cy="13" rx="1.2" ry="1.2" fill="#333"/>
+  <ellipse cx="16" cy="13" rx="2.5" ry="2.5" fill="#fff"/><ellipse cx="24" cy="13" rx="2.5" ry="2.5" fill="#fff"/>
+  <ellipse cx="17" cy="13" rx="1.2" ry="1.2" fill="#333"/><ellipse cx="25" cy="13" rx="1.2" ry="1.2" fill="#333"/>
   <path d="M14 19 Q20 24 26 19" stroke="#e74c3c" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-  <text x="32" y="10" font-size="10" fill="#f5c518">★</text>
-  <text x="-2" y="10" font-size="10" fill="#f5c518">★</text>
+  <text x="32" y="10" font-size="10" fill="#f5c518">★</text><text x="-2" y="10" font-size="10" fill="#f5c518">★</text>
 </svg>`;}
- 
 function showNPCSpeech(npc){
   if(npc.healed) return;
   clearNPCSpeech(npc);
   const gc=document.getElementById('gc'),h=gc.clientHeight;
-  const el=document.createElement('div');
-  el.className='speech';
+  const el=document.createElement('div'); el.className='speech';
   el.style.left=(npc.x-55)+'px'; el.style.bottom=(h*0.38+78)+'px';
   el.textContent=NPC_SAY[Math.floor(Math.random()*NPC_SAY.length)];
   gc.appendChild(el); npc.speechEl=el;
@@ -483,13 +636,12 @@ function showNPCSpeech(npc){
 }
 function clearNPCSpeech(n){if(n.speechEl){n.speechEl.remove();n.speechEl=null;}}
 function removeNPC(n){if(n.el){n.el.remove();n.el=null;}clearNPCSpeech(n);npcs=npcs.filter(x=>x.id!==n.id);}
- 
 function tryHeal(){
   const cx=playerX+32; let best=null,bd=110;
   npcs.forEach(n=>{if(n.healed)return;const d=Math.abs(cx-(n.x+20));if(d<bd){bd=d;best=n;}});
   if(best) healNPC(best);
 }
-function tryHealNPC(n){if(n.healed||challengeActive||rentActive)return;healNPC(n);}
+function tryHealNPC(n){if(n.healed||isBlocked())return;healNPC(n);}
 function healNPC(n){
   n.healed=true; clearNPCSpeech(n);
   if(n.el){n.el.innerHTML=drawHealedNPC(n.type);setTimeout(()=>removeNPC(n),2500);}
@@ -501,11 +653,11 @@ function healNPC(n){
   pop(n.x+50,'+'+earned+' $JOSH','g');
   showJoshSay(JOSH_SAY[Math.floor(Math.random()*JOSH_SAY.length)]);
 }
- 
+
 // ─── CHALLENGES ───────────────────────────────────────────────────
-function scheduleChallenge(){setTimeout(()=>{if(gameRunning&&!rentActive) triggerChallenge();},12000+Math.random()*12000);}
+function scheduleChallenge(){setTimeout(()=>{if(gameRunning&&!rentActive&&!tankerActive) triggerChallenge();},12000+Math.random()*12000);}
 function triggerChallenge(){
-  if(!gameRunning||rentActive) return;
+  if(!gameRunning||rentActive||tankerActive) return;
   challengeActive=true;
   const ch=CHALLENGES[Math.floor(Math.random()*CHALLENGES.length)];
   chEmoji=ch.emoji; chProgress=0; chTotal=ch.count;
@@ -525,15 +677,13 @@ function buildDots(){
 function eatOne(){
   if(chProgress>=chTotal) return;
   const dots=document.querySelectorAll('.pd');
-  dots[chProgress].classList.add('eaten');
-  chProgress++;
+  dots[chProgress].classList.add('eaten'); chProgress++;
   score+=30; updateHUD();
   if(chProgress>=chTotal) setTimeout(finishChallenge,600);
 }
 function finishChallenge(){
   document.getElementById('challenge-overlay').classList.remove('active');
-  challengeActive=false;
-  score+=250;
+  challengeActive=false; score+=250;
   const coins=Math.floor(20+Math.random()*30);
   joshCoins+=coins; totalCryptoEarned+=coins;
   updateHUD(); refreshCryptoDisplay();
@@ -542,29 +692,184 @@ function finishChallenge(){
   showJoshSay(chEmoji==='🥞'?"Those pancakes were LEGENDARY! 💪":"Hot dogs fuel the grind! 🚀");
   scheduleChallenge();
 }
- 
+
+// ─── TANKER ALERT ─────────────────────────────────────────────────
+function scheduleTanker(){
+  const delay=25000+Math.random()*25000;
+  setTimeout(()=>{if(gameRunning&&!tankerActive) triggerTanker();}, delay);
+}
+function triggerTanker(){
+  if(!gameRunning||tankerActive) return;
+  tankerActive=true;
+  // Show news ticker first
+  showNewsTicker();
+  setTimeout(()=>{
+    tankerCostAmt=Math.floor((60+Math.random()*120)*(1+tankerIgnoreCount*0.4));
+    document.getElementById('tankerDesc').textContent=TANKER_DESCS[Math.floor(Math.random()*TANKER_DESCS.length)];
+    document.getElementById('tankerCost').textContent=tankerCostAmt;
+    document.getElementById('tankerWallet').textContent=joshCoins;
+    document.getElementById('tanker-overlay').classList.add('active');
+  },2500);
+}
+function showNewsTicker(){
+  const gc=document.getElementById('gc');
+  document.querySelectorAll('.news-ticker').forEach(e=>e.remove());
+  const t=document.createElement('div'); t.className='news-ticker';
+  const s=document.createElement('div'); s.className='news-scroll';
+  s.textContent='🚨 BREAKING: ROMEO\'S TANKERS HAVE BEEN SEIZED BY THE US NAVY! 🚢⚓ DIPLOMATIC CRISIS UNFOLDING! 🚨 ROMEO\'S TANKERS HAVE BEEN SEIZED BY THE US NAVY!';
+  t.appendChild(s); gc.appendChild(t);
+  setTimeout(()=>t.remove(),7000);
+}
+function payTanker(){
+  if(joshCoins>=tankerCostAmt){
+    joshCoins-=tankerCostAmt; refreshCryptoDisplay();
+    pop(playerX,'-'+tankerCostAmt+' $JOSH','r');
+    showJoshSay("Bribe paid. Romeo better not hear about this... 🤐");
+    closeTanker();
+  } else {
+    // Can't afford — penalty
+    score=Math.max(0,score-200);
+    showJoshSay("Can't pay the bribe! Romeo is FURIOUS! 😱");
+    closeTanker();
+  }
+}
+function ignoreTanker(){
+  tankerIgnoreCount++;
+  score=Math.max(0,score-150);
+  showJoshSay("Not my problem... until it is. 😬");
+  closeTanker();
+}
+function closeTanker(){
+  document.getElementById('tanker-overlay').classList.remove('active');
+  tankerActive=false;
+  scheduleTanker();
+}
+
+// ─── CASINO ───────────────────────────────────────────────────────
+function openCasino(){
+  if(!gameRunning) return;
+  casinoActive=true;
+  document.getElementById('casinoWallet').textContent=joshCoins;
+  document.getElementById('casino-result').textContent='';
+  document.getElementById('casino-result').className='';
+  document.getElementById('reel0').textContent='🎰';
+  document.getElementById('reel1').textContent='🎰';
+  document.getElementById('reel2').textContent='🎰';
+  document.getElementById('bet-display').innerHTML='BET: <span id="betAmt">'+betAmount+'</span>';
+  document.getElementById('casino-overlay').classList.add('active');
+  showJoshSay("Let's get RICH at Resorts World! 🎰");
+}
+function closeCasino(){
+  document.getElementById('casino-overlay').classList.remove('active');
+  casinoActive=false;
+  refreshCryptoDisplay();
+  showJoshSay("Back to the streets! 💪");
+}
+function changeBet(delta){
+  betAmount=Math.max(10,Math.min(joshCoins,betAmount+delta));
+  document.getElementById('betAmt').textContent=betAmount;
+}
+function doSpin(){
+  if(isSpinning||joshCoins<betAmount) return;
+  isSpinning=true;
+  joshCoins-=betAmount;
+  document.getElementById('casinoWallet').textContent=joshCoins;
+  document.getElementById('casino-result').textContent='🎰 SPINNING...';
+  document.getElementById('casino-result').className='';
+  const btn=document.getElementById('spin-btn');
+  btn.disabled=true;
+  // Start spinning animation
+  [0,1,2].forEach(i=>document.getElementById('reel'+i).classList.add('spin'));
+  // Pick results
+  const results=[
+    SLOT_SYMBOLS[Math.floor(Math.random()*SLOT_SYMBOLS.length)],
+    SLOT_SYMBOLS[Math.floor(Math.random()*SLOT_SYMBOLS.length)],
+    SLOT_SYMBOLS[Math.floor(Math.random()*SLOT_SYMBOLS.length)],
+  ];
+  // Reveal reels one by one
+  setTimeout(()=>{
+    document.getElementById('reel0').classList.remove('spin');
+    document.getElementById('reel0').textContent=results[0];
+  },600);
+  setTimeout(()=>{
+    document.getElementById('reel1').classList.remove('spin');
+    document.getElementById('reel1').textContent=results[1];
+  },1000);
+  setTimeout(()=>{
+    document.getElementById('reel2').classList.remove('spin');
+    document.getElementById('reel2').textContent=results[2];
+    resolveSlot(results);
+    isSpinning=false;
+    btn.disabled=false;
+  },1400);
+}
+function resolveSlot(r){
+  const key=r.join('');
+  const resEl=document.getElementById('casino-result');
+  if(SLOT_PAYOUTS[key]){
+    const multi=SLOT_PAYOUTS[key];
+    const won=Math.floor(betAmount*multi);
+    joshCoins+=won; totalCryptoEarned+=won;
+    if(multi===25){
+      resEl.textContent='🎉 JACKPOT! +'+won+' $JOSH!';
+      resEl.className='jackpot';
+      showJoshSay("JACKPOT AT RESORTS WORLD! 🎰🎉💰");
+    } else {
+      resEl.textContent='✅ WIN! +'+won+' $JOSH ('+multi+'x)';
+      resEl.className='win';
+      showJoshSay("Cha-ching! $JOSH goes brrr! 💰");
+    }
+    pop(playerX,'+'+won+' $JOSH','g');
+  } else {
+    // Check two-of-a-kind
+    const counts={};
+    r.forEach(s=>counts[s]=(counts[s]||0)+1);
+    const hasPair=Object.values(counts).some(v=>v>=2);
+    if(hasPair){
+      const won=Math.floor(betAmount*1.5);
+      joshCoins+=won; totalCryptoEarned+=(won-betAmount);
+      resEl.textContent='🤏 PAIR! +'+won+' $JOSH (1.5x)';
+      resEl.className='win';
+      showJoshSay("A pair! Not bad for a doctor. 😏");
+      pop(playerX,'+'+won+' $JOSH','g');
+    } else {
+      resEl.textContent='❌ BUST! -'+betAmount+' $JOSH';
+      resEl.className='lose';
+      showJoshSay("The house wins... but I still have PT! 😤");
+      pop(playerX,'-'+betAmount+' $JOSH','r');
+    }
+  }
+  document.getElementById('casinoWallet').textContent=joshCoins;
+  if(joshCoins<=0){
+    resEl.textContent='💸 BROKE! GET BACK TO WORK!';
+    resEl.className='lose';
+    setTimeout(()=>{
+      closeCasino();
+      document.getElementById('goTitle').textContent='BUSTED!';
+      document.getElementById('goReason').textContent='You gambled all your $JOSH away at Resorts World!';
+      gameEnd();
+    },2000);
+  }
+}
+
 // ─── LANDLORD ─────────────────────────────────────────────────────
 function scheduleLandlord(){
-  const delay = refusedCount>0 ? 8000+Math.random()*7000 : 20000+Math.random()*15000;
-  setTimeout(()=>{if(gameRunning&&!landlordOnScreen) spawnLandlord();}, delay);
+  const delay=refusedCount>0?8000+Math.random()*7000:20000+Math.random()*15000;
+  setTimeout(()=>{if(gameRunning&&!landlordOnScreen) spawnLandlord();},delay);
 }
- 
 function spawnLandlord(){
   if(!gameRunning||landlordOnScreen||rentActive) return;
   landlordOnScreen=true;
   const gc=document.getElementById('gc');
   const W=gc.clientWidth,h=gc.clientHeight;
-  // Rent scales with how long you've survived & refusals
   pendingRent=Math.floor((80+Math.random()*100)*(1+refusedCount*0.5));
- 
   const el=document.createElement('div');
   el.className='ll-char';
   el.style.cssText=`left:-80px;bottom:${h*0.38}px;transition:left 2.8s ease;`;
   el.innerHTML=drawLandlord();
   gc.appendChild(el); llEl=el;
- 
   setTimeout(()=>{
-    const targetX=Math.min(W*0.7, playerX+200);
+    const targetX=Math.min(W*0.7,playerX+200);
     el.style.left=targetX+'px';
     setTimeout(()=>{
       showLLSpeech(LL_SAY[Math.floor(Math.random()*LL_SAY.length)]);
@@ -572,7 +877,6 @@ function spawnLandlord(){
     },2900);
   },50);
 }
- 
 function drawLandlord(){return`<svg viewBox="0 0 52 92" width="52" height="92" xmlns="http://www.w3.org/2000/svg">
   <rect x="17" y="63" width="9" height="26" rx="4" fill="#1a1a50"/>
   <rect x="28" y="63" width="9" height="26" rx="4" fill="#1a1a50"/>
@@ -584,13 +888,11 @@ function drawLandlord(){return`<svg viewBox="0 0 52 92" width="52" height="92" x
   <rect x="3" y="37" width="9" height="20" rx="4" fill="#1a1a50"/>
   <ellipse cx="7" cy="58" rx="6" ry="5" fill="#f0c8a0"/>
   <rect x="40" y="37" width="9" height="20" rx="4" fill="#1a1a50"/>
-  <!-- rent paper in right hand -->
   <rect x="38" y="52" width="20" height="14" rx="3" fill="#fff" stroke="#c0392b" stroke-width="1.5"/>
   <text x="48" y="59" font-size="5" font-family="Nunito" font-weight="900" fill="#c0392b" text-anchor="middle">RENT</text>
   <text x="48" y="64" font-size="4" font-family="Nunito" font-weight="700" fill="#333" text-anchor="middle">PAST DUE</text>
   <rect x="22" y="25" width="9" height="12" rx="3" fill="#f0c8a0"/>
   <ellipse cx="26" cy="17" rx="14" ry="15" fill="#f0c8a0"/>
-  <!-- big mustache -->
   <ellipse cx="26" cy="24" rx="11" ry="4.5" fill="#3a1a00"/>
   <ellipse cx="19" cy="23" rx="5.5" ry="3.5" fill="#3a1a00"/>
   <ellipse cx="33" cy="23" rx="5.5" ry="3.5" fill="#3a1a00"/>
@@ -598,36 +900,29 @@ function drawLandlord(){return`<svg viewBox="0 0 52 92" width="52" height="92" x
   <ellipse cx="31" cy="15" rx="3" ry="3" fill="#fff"/>
   <ellipse cx="22" cy="15" rx="1.5" ry="1.5" fill="#333"/>
   <ellipse cx="32" cy="15" rx="1.5" ry="1.5" fill="#333"/>
-  <!-- angry brows -->
   <rect x="17" y="10" width="7" height="2.5" rx="1" fill="#3a1a00" transform="rotate(-12,21,10)"/>
   <rect x="28" y="10" width="7" height="2.5" rx="1" fill="#3a1a00" transform="rotate(12,32,10)"/>
-  <!-- hat -->
   <rect x="13" y="5" width="26" height="7" rx="2" fill="#0d0d30"/>
   <rect x="9" y="9" width="34" height="3" rx="1" fill="#0d0d30"/>
   <text x="26" y="11" font-size="4" font-family="Nunito" font-weight="900" fill="#f5c518" text-anchor="middle">🇮🇹</text>
 </svg>`;}
- 
 function showLLSpeech(msg){
   if(llSpeechEl){llSpeechEl.remove();llSpeechEl=null;}
   const gc=document.getElementById('gc'),h=gc.clientHeight;
-  const el=document.createElement('div');
-  el.className='speech ll-bub';
+  const el=document.createElement('div'); el.className='speech ll-bub';
   const lx=llEl?parseInt(llEl.style.left)||200:200;
   el.style.left=(lx-90)+'px'; el.style.bottom=(h*0.38+105)+'px'; el.style.zIndex=55;
   el.textContent=msg; gc.appendChild(el); llSpeechEl=el;
 }
- 
 function openRentOverlay(){
   if(!gameRunning) return;
   rentActive=true;
   if(llSpeechEl){llSpeechEl.remove();llSpeechEl=null;}
-  const line=LL_SAY[Math.floor(Math.random()*LL_SAY.length)];
-  document.getElementById('llQuote').textContent='"'+line+'"';
+  document.getElementById('llQuote').textContent='"'+LL_SAY[Math.floor(Math.random()*LL_SAY.length)]+'"';
   document.getElementById('rentAmt').textContent=pendingRent;
   document.getElementById('walletLine').textContent=joshCoins;
   document.getElementById('rent-overlay').classList.add('active');
 }
- 
 function payRent(){
   if(joshCoins>=pendingRent){
     joshCoins-=pendingRent; refreshCryptoDisplay();
@@ -635,47 +930,43 @@ function payRent(){
     showJoshSay("Rent paid... for now. Back to the hustle! 😤");
     closeRent(false);
   } else {
-    // Broke — game over
     document.getElementById('rent-overlay').classList.remove('active');
     document.getElementById('goTitle').textContent='EVICTED!';
     document.getElementById('goReason').textContent='You ran out of $JOSH to pay the rent-a!';
     gameEnd();
   }
 }
- 
 function refuseRent(){
   refusedCount++;
   score=Math.max(0,score-300);
-  pendingRent=Math.floor(pendingRent*1.6); // landlord angry
+  pendingRent=Math.floor(pendingRent*1.6);
   showJoshSay("I'll pay later! The crypto will 10x! 😅");
   closeRent(true);
 }
- 
 function closeRent(angry){
   document.getElementById('rent-overlay').classList.remove('active');
   rentActive=false;
   if(llEl){
     llEl.style.transition='left 2s ease';
-    llEl.style.left=(angry?'-200px':'-200px');
+    llEl.style.left='-200px';
     setTimeout(()=>{if(llEl){llEl.remove();llEl=null;}},2100);
   }
   if(llSpeechEl){llSpeechEl.remove();llSpeechEl=null;}
   landlordOnScreen=false; updateHUD();
   scheduleLandlord();
 }
- 
+
 // ─── JOSH SPEECH ──────────────────────────────────────────────────
 function showJoshSay(msg){
   document.querySelectorAll('.josh-bub').forEach(e=>e.remove());
   if(joshTO) clearTimeout(joshTO);
   const gc=document.getElementById('gc'),h=gc.clientHeight;
-  const el=document.createElement('div');
-  el.className='speech josh-bub';
-  el.style.cssText=`left:${playerX-55}px;bottom:${h*0.38+playerY+115}px;z-index:60;`;
+  const el=document.createElement('div'); el.className='speech josh-bub';
+  el.style.cssText=`left:${Math.max(0,playerX-55)}px;bottom:${h*0.38+playerY+115}px;z-index:60;`;
   el.textContent=msg; gc.appendChild(el);
   joshTO=setTimeout(()=>el.remove(),3000);
 }
- 
+
 // ─── SCORE POPS ───────────────────────────────────────────────────
 function pop(x,text,cls=''){
   const gc=document.getElementById('gc'),h=gc.clientHeight;
@@ -685,18 +976,18 @@ function pop(x,text,cls=''){
   el.textContent=text; gc.appendChild(el);
   setTimeout(()=>el.remove(),1100);
 }
- 
+
 // ─── HUD ──────────────────────────────────────────────────────────
 function updateHUD(){
   document.getElementById('sd').textContent=score;
   document.getElementById('hd').textContent=healed;
 }
- 
+
 // ─── TAXIS ────────────────────────────────────────────────────────
 function spawnTaxi(){
   const gc=document.getElementById('gc'),h=gc.clientHeight;
-  const t=document.createElement('div');
-  t.className='taxi'; t.style.bottom=(h*0.17)+'px';
+  const t=document.createElement('div'); t.className='taxi';
+  t.style.bottom=(h*0.17)+'px';
   t.innerHTML=`<svg viewBox="0 0 100 50" width="100" height="50">
     <rect x="5" y="18" width="85" height="25" rx="5" fill="#f5c518"/>
     <rect x="15" y="8" width="55" height="18" rx="4" fill="#c9a000"/>
@@ -714,24 +1005,7 @@ function spawnTaxi(){
   gc.appendChild(t);
 }
 setInterval(()=>{if(gameRunning)spawnTaxi();},3500);
- 
-// ─── MOBILE CONTROLS ─────────────────────────────────────────────
-function addMobileControls(){
-  const gc=document.getElementById('gc');
-  const d=document.createElement('div');
-  d.style.cssText='position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:space-between;padding:0 12px;z-index:90;pointer-events:none;';
-  d.innerHTML=`
-    <div style="display:flex;gap:8px;pointer-events:all;">
-      <button ontouchstart="keys['ArrowLeft']=true" ontouchend="keys['ArrowLeft']=false" onmousedown="keys['ArrowLeft']=true" onmouseup="keys['ArrowLeft']=false" style="width:52px;height:52px;border-radius:50%;background:rgba(245,197,24,0.92);border:3px solid #c9a000;font-size:18px;cursor:pointer;font-family:Bangers;color:#1a1a2e;font-weight:900;">◀</button>
-      <button ontouchstart="keys['ArrowRight']=true" ontouchend="keys['ArrowRight']=false" onmousedown="keys['ArrowRight']=true" onmouseup="keys['ArrowRight']=false" style="width:52px;height:52px;border-radius:50%;background:rgba(245,197,24,0.92);border:3px solid #c9a000;font-size:18px;cursor:pointer;font-family:Bangers;color:#1a1a2e;font-weight:900;">▶</button>
-    </div>
-    <div style="display:flex;gap:8px;pointer-events:all;">
-      <button onclick="tryHeal()" style="height:52px;padding:0 13px;border-radius:26px;background:rgba(46,204,113,0.92);border:3px solid #1a8a4a;font-size:13px;cursor:pointer;font-family:Bangers;color:#fff;letter-spacing:1px;">HEAL</button>
-      <button ontouchstart="keys['Space']=true;setTimeout(()=>keys['Space']=false,120)" onmousedown="keys['Space']=true;setTimeout(()=>keys['Space']=false,120)" style="width:52px;height:52px;border-radius:50%;background:rgba(52,152,219,0.92);border:3px solid #1a6a9a;font-size:18px;cursor:pointer;font-family:Bangers;color:#fff;">↑</button>
-    </div>`;
-  gc.appendChild(d);
-}
- 
+
 // ─── GAME END ─────────────────────────────────────────────────────
 function gameEnd(){
   gameRunning=false;
@@ -740,28 +1014,28 @@ function gameEnd(){
   document.getElementById('goCrypto').textContent='$JOSH Earned: '+totalCryptoEarned;
   document.getElementById('go-screen').classList.add('active');
 }
- 
 function restartGame(){
   document.getElementById('go-screen').classList.remove('active');
   document.getElementById('challenge-overlay').classList.remove('active');
   document.getElementById('rent-overlay').classList.remove('active');
-  challengeActive=false; rentActive=false; landlordOnScreen=false;
-  npcs.forEach(n=>{if(n.el)n.el.remove();if(n.speechEl)n.speechEl.remove();});
-  npcs=[];
+  document.getElementById('tanker-overlay').classList.remove('active');
+  document.getElementById('casino-overlay').classList.remove('active');
+  challengeActive=false; rentActive=false; landlordOnScreen=false; casinoActive=false; tankerActive=false;
+  npcs.forEach(n=>{if(n.el)n.el.remove();if(n.speechEl)n.speechEl.remove();}); npcs=[];
   if(llEl){llEl.remove();llEl=null;}
   if(llSpeechEl){llSpeechEl.remove();llSpeechEl=null;}
-  document.querySelectorAll('.speech,.sp,.taxi').forEach(e=>e.remove());
+  document.querySelectorAll('.speech,.sp,.taxi,.news-ticker').forEach(e=>e.remove());
   cryptoPrice=0.042; cryptoHistory=[];
   for(let i=0;i<8;i++) cryptoHistory.push(+(0.038+Math.random()*0.008).toFixed(4));
   startGame();
 }
- 
+
 // ─── PERIODIC JOSH QUOTES ─────────────────────────────────────────
 setInterval(()=>{
-  if(gameRunning&&!challengeActive&&!rentActive)
+  if(gameRunning&&!isBlocked())
     showJoshSay(JOSH_SAY[Math.floor(Math.random()*JOSH_SAY.length)]);
 },8000);
- 
+
 init();
 </script>
 </body>
